@@ -2,8 +2,7 @@ const { REST, Routes } = require("discord.js");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const dotenv = require("dotenv");
-dotenv.config();
+const config = require("./config.json");
 
 const commands = [];
 const commandsPath = path.join(__dirname, "commands");
@@ -22,7 +21,7 @@ for (const file of commandFiles) {
   }
 }
 
-const rest = new REST().setToken(process.env.TOKEN);
+const rest = new REST().setToken(config.app.token);
 
 // Deploy commands
 (async () => {
@@ -30,8 +29,8 @@ const rest = new REST().setToken(process.env.TOKEN);
     console.log(`Started refreshing ${commands.length} application (/) commands.`);
 
     const data = await rest.put(
-      // Routes.applicationCommands(process.env.CLIENT_ID),
-      Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
+      Routes.applicationCommands(config.app.id),
+      // Routes.applicationGuildCommands(config.app.id, config.guild_id),
       { body: commands }
     );
 
