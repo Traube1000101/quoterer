@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, time } = require("discord.js");
+const { SlashCommandBuilder } = require("discord.js");
 const { performance } = require("perf_hooks");
 
 const config = require("../config.json");
