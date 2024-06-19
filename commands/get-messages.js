@@ -15,34 +15,33 @@ function gatherQuotes(client, messages) {
     const texts = messageText.match(/(?<=")[\w.!?äöü].*?[\w.!?äöü](?=")/g); // Match texts between quotes
     (texts && (quote.content = texts)) || (quote.invalid = true);
 
-    let byString = messageText.match(/(?<=by\s).*(?=\sin)/); // Match string between by & in
-    if (byString) {
-      byString = byString[0];
-      quote.authors = [];
+    quote.authors = [];
 
-      const authorIds = byString.match(/(?<=<@).*?(?=>)/g);
-      if (authorIds) {
-        for (const authorId of authorIds) {
-          const author = client.users.cache.get(authorId);
-          author &&
-            quote.authors.push({
-              id: author.id,
-              name: author.displayName,
-              username: author.username,
-              avatar: author.avatarURL(),
-            });
-        }
-      } else {
+    const authorIds = messageText.match(/(?<=<@).*?(?=>)/g);
+    if (authorIds) {
+      for (const authorId of authorIds) {
+        const author = client.users.cache.get(authorId);
+        author &&
+          quote.authors.push({
+            id: author.id,
+            name: author.displayName,
+            username: author.username,
+            avatar: author.avatarURL(),
+          });
+      }
+    } else {
+      let byString = messageText.match(/(?<=by\s).*(?=\sin)/); // Match string between by & in
+      if (byString) {
+        byString = byString[0];
         byString.split(", ").forEach((author) => {
           quote.authors.push({
             name: author,
           });
         });
+      } else {
+        quote.invalid = true;
       }
-    } else {
-      quote.invalid = true;
     }
-
     const createdIn = messageText.match(/(?<=\sin\s).*/);
     (createdIn && (quote.createdIn = createdIn[0])) ||
       (quote.createdIn = new Date(quote.createdTimestamp).getFullYear());
