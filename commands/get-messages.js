@@ -1,8 +1,10 @@
 const { SlashCommandBuilder, time } = require("discord.js");
+const { performance } = require("perf_hooks");
 
 const config = require("../config.json");
 
 function gatherQuotes(client, messages) {
+  const startTime = performance.now();
   for (const message of messages) {
     let quote = {
       quoteId: message[0],
@@ -49,6 +51,12 @@ function gatherQuotes(client, messages) {
 
     console.log(`Quote:`, quote);
   }
+  const endTime = performance.now();
+
+  return {
+    count: messages.size,
+    elapsedTime: (endTime - startTime).toFixed(3),
+  };
 }
 
 module.exports = (client) => {
@@ -57,15 +65,17 @@ module.exports = (client) => {
       .setName("get-messages")
       .setDescription("Gets all messages of a channel."),
     async execute(interaction) {
-      const channel = client.channels.cache.get(config.channel_id);
-      channel.messages
-        .fetch()
-        .then((messages) => gatherQuotes(client, messages))
-        .catch(console.error);
-      await interaction.reply({
-        content: "Read and processed the Quotes!",
-        ephemeral: true,
-      });
+      try {
+        const channel = client.channels.cache.get(config.channel_id);
+        const messages = await channel.messages.fetch();
+        const data = gatherQuotes(client, messages);
+        await interaction.reply({
+          content: `Read and processed ${data.count} Quotes in ${data.elapsedTime}ms.`,
+          ephemeral: true,
+        });
+      } catch (error) {
+        console.error(error);
+      }
     },
   };
 };
