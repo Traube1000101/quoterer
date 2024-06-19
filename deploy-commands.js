@@ -11,7 +11,12 @@ const commandFiles = fs.readdirSync(commandsPath).filter((file) => file.endsWith
 // Get JSON data of every command
 for (const file of commandFiles) {
   const filePath = path.join(commandsPath, file);
-  const command = require(filePath);
+  let command = require(filePath);
+
+  if (typeof command === "function") {
+    command = command();
+  }
+
   if ("data" in command && "execute" in command) {
     commands.push(command.data.toJSON());
   } else {
@@ -29,8 +34,8 @@ const rest = new REST().setToken(config.app.token);
     console.log(`Started refreshing ${commands.length} application (/) commands.`);
 
     const data = await rest.put(
-      Routes.applicationCommands(config.app.id),
-      // Routes.applicationGuildCommands(config.app.id, config.guild_id),
+      // Routes.applicationCommands(config.app.id),
+      Routes.applicationGuildCommands(config.app.id, config.guild_id),
       { body: commands }
     );
 
