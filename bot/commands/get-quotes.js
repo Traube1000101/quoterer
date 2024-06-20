@@ -1,7 +1,6 @@
 const { SlashCommandBuilder, PermissionFlagsBits } = require("discord.js");
 const { performance } = require("perf_hooks");
-
-const config = require("../config.json");
+require("dotenv").config({ path: "../../.env" });
 
 function processQuotes(client, messages) {
   const startTime = performance.now();
@@ -69,7 +68,7 @@ module.exports = (client) => {
       .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
     async execute(interaction) {
       try {
-        const channel = client.channels.cache.get(config.channel_id);
+        const channel = client.channels.cache.get(process.env.channel_id);
         const messages = await channel.messages.fetch();
         const data = processQuotes(client, messages);
         await interaction.reply({
