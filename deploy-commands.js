@@ -6,7 +6,9 @@ const config = require("./config.json");
 
 const commands = [];
 const commandsPath = path.join(__dirname, "commands");
-const commandFiles = fs.readdirSync(commandsPath).filter((file) => file.endsWith(".js"));
+const commandFiles = fs
+  .readdirSync(commandsPath)
+  .filter((file) => file.endsWith(".js"));
 
 // Get JSON data of every command
 for (const file of commandFiles) {
@@ -31,7 +33,9 @@ const rest = new REST().setToken(config.app.token);
 // Deploy commands
 (async () => {
   try {
-    console.log(`Started refreshing ${commands.length} application (/) commands.`);
+    console.log(
+      `Started refreshing ${commands.length} application (/) commands.`
+    );
 
     const data = await rest.put(
       // Routes.applicationCommands(config.app.id),
@@ -39,7 +43,9 @@ const rest = new REST().setToken(config.app.token);
       { body: commands }
     );
 
-    console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+    console.log(
+      `Successfully reloaded ${data.length} application (/) commands.`
+    );
   } catch (error) {
     console.error(error);
   }
