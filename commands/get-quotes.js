@@ -1,9 +1,9 @@
-const { SlashCommandBuilder } = require("discord.js");
+const { SlashCommandBuilder, PermissionFlagsBits } = require("discord.js");
 const { performance } = require("perf_hooks");
 
 const config = require("../config.json");
 
-function gatherQuotes(client, messages) {
+function processQuotes(client, messages) {
   const startTime = performance.now();
   for (const message of messages) {
     let quote = {
@@ -54,20 +54,24 @@ function gatherQuotes(client, messages) {
 
   return {
     count: messages.size,
-    elapsedTime: (endTime - startTime).toFixed(3),
+    elapsedTime: (endTime - startTime).toFixed(2),
   };
 }
 
 module.exports = (client) => {
   return {
     data: new SlashCommandBuilder()
-      .setName("get-messages")
-      .setDescription("Gets all messages of a channel."),
+      .setName("get-quotes")
+      .setDescription(
+        "Gets all quotes of the quotes channel, processes them and saves them into the database."
+      )
+      .setDMPermission(false)
+      .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
     async execute(interaction) {
       try {
         const channel = client.channels.cache.get(config.channel_id);
         const messages = await channel.messages.fetch();
-        const data = gatherQuotes(client, messages);
+        const data = processQuotes(client, messages);
         await interaction.reply({
           content: `Read and processed ${data.count} Quotes in ${data.elapsedTime}ms.`,
           ephemeral: true,
