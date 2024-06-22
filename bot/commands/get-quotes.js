@@ -57,7 +57,7 @@ function processQuotes(client, messages) {
   };
 }
 
-module.exports = (client) => {
+module.exports = (database, client) => {
   return {
     data: new SlashCommandBuilder()
       .setName("get-quotes")
