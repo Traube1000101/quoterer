@@ -70,10 +70,10 @@ client.login(process.env.bot_token);
 console.log("Bot is running!");
 
 process.on("SIGINT", async () => {
+  console.log("Shutting down...");
   await dbClient.close();
   await client.user.setActivity("Sleeping...", {
     type: 4,
   });
-  console.log("Shutting down...");
   process.exit();
 });
