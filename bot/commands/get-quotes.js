@@ -70,6 +70,16 @@ module.exports = (database, client) => {
     }
   }
 
+  const serversCollection = database.collection("servers");
+  async function getQuoteChannel(guildId) {
+    try {
+      const channelId = await serversCollection.findOne({ _id: guildId });
+      return await client.channels.fetch(channelId.channel.id);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
   return {
     data: new SlashCommandBuilder()
       .setName("get-quotes")
@@ -80,7 +90,7 @@ module.exports = (database, client) => {
       .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
     async execute(interaction) {
       try {
-        const channel = client.channels.cache.get(process.env.channel_id);
+        const channel = await getQuoteChannel(interaction.guildId);
         const messages = await channel.messages.fetch();
         const data = processQuotes(messages);
         await interaction.reply({
