@@ -8,6 +8,8 @@ module.exports = (database, client) => {
     for (const message of messages) {
       let quote = {
         createdTimestamp: message[1].createdTimestamp,
+        content: [],
+        authors: [],
       };
 
       const messageId = message[0];
@@ -15,7 +17,6 @@ module.exports = (database, client) => {
       const texts = messageText.match(/(?<=")[\w.!?äöü].*?[\w.!?äöü](?=")/g); // Match texts between quotes
       (texts && (quote.content = texts)) || (quote.invalid = true);
 
-      quote.authors = [];
       const authorIds = messageText.match(/(?<=<@).*?(?=>)/g);
       if (authorIds) {
         for (const authorId of authorIds) {
