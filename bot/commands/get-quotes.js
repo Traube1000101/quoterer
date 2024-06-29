@@ -73,25 +73,21 @@ module.exports = (database, client) => {
       .setDMPermission(false)
       .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
     async execute(interaction) {
-      try {
-        const channel = await getQuoteChannel(interaction.guildId);
-        if (channel) {
+      const channel = await getQuoteChannel(interaction.guildId)
+        .then(async (channel) => {
           const messages = await channel.messages.fetch();
           const data = processQuotes(messages);
-          await interaction.reply({
+          interaction.reply({
             content: `Read and processed ${data.count} Quotes in ${data.elapsedTime}ms.`,
             ephemeral: true,
           });
-        } else {
-          await interaction.reply({
-            content:
-              "No quotes channel found! It must first be set by the Server Owner.",
+        })
+        .catch((error) => {
+          interaction.reply({
+            content: "Error: " + error.message,
             ephemeral: true,
           });
-        }
-      } catch (error) {
-        console.error(error);
-      }
+        });
     },
   };
 };

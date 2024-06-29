@@ -15,12 +15,13 @@ module.exports = (database, client) => {
 
   async function getQuoteChannel(guildId) {
     const serversCollection = database.collection("servers");
-    try {
-      const channelId = await serversCollection.findOne({ _id: guildId });
-      return await client.channels.fetch(channelId.channel.id);
-    } catch (error) {
-      console.error("Error:", error);
+    const result = await serversCollection.findOne({ _id: guildId });
+    if (!result?.channel?.id) {
+      throw new Error(
+        "No quotes channel set! It must first be set by the Server Owner."
+      );
     }
+    return await client.channels.fetch(result.channel.id);
   }
   return { sendNude, getQuoteChannel };
 };
