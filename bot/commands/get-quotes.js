@@ -75,12 +75,20 @@ module.exports = (database, client) => {
     async execute(interaction) {
       try {
         const channel = await getQuoteChannel(interaction.guildId);
-        const messages = await channel.messages.fetch();
-        const data = processQuotes(messages);
-        await interaction.reply({
-          content: `Read and processed ${data.count} Quotes in ${data.elapsedTime}ms.`,
-          ephemeral: true,
-        });
+        if (channel) {
+          const messages = await channel.messages.fetch();
+          const data = processQuotes(messages);
+          await interaction.reply({
+            content: `Read and processed ${data.count} Quotes in ${data.elapsedTime}ms.`,
+            ephemeral: true,
+          });
+        } else {
+          await interaction.reply({
+            content:
+              "No quotes channel found! It must first be set by the Server Owner.",
+            ephemeral: true,
+          });
+        }
       } catch (error) {
         console.error(error);
       }
