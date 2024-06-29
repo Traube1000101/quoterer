@@ -1,8 +1,14 @@
+const workingSir = process.cwd();
 const { SlashCommandBuilder, PermissionFlagsBits } = require("discord.js");
 const { performance } = require("perf_hooks");
-require("dotenv").config({ path: "../../.env" });
+require("dotenv").config({ path: `${workingSir}/../.env` });
 
 module.exports = (database, client) => {
+  const { sendNude, getQuoteChannel } = require(`${workingSir}/modules`)(
+    database,
+    client
+  );
+
   function processQuotes(messages) {
     const startTime = performance.now();
     for (const message of messages) {
@@ -56,29 +62,6 @@ module.exports = (database, client) => {
       count: messages.size,
       elapsedTime: (endTime - startTime).toFixed(2),
     };
-  }
-
-  const quotesCollection = database.collection("quotes");
-  async function sendNude(messageId, quote) {
-    try {
-      await quotesCollection.updateOne(
-        { _id: messageId },
-        { $set: quote },
-        { upsert: true }
-      );
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  }
-
-  const serversCollection = database.collection("servers");
-  async function getQuoteChannel(guildId) {
-    try {
-      const channelId = await serversCollection.findOne({ _id: guildId });
-      return await client.channels.fetch(channelId.channel.id);
-    } catch (error) {
-      console.error("Error:", error);
-    }
   }
 
   return {
