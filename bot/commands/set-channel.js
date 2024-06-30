@@ -5,9 +5,8 @@ const {
 } = require("discord.js");
 
 module.exports = (database) => {
-  const serversCollection = database.collection("servers");
-
   async function setChannel(guildId, channelId, channelName) {
+    const serversCollection = database.collection("servers");
     try {
       await serversCollection.updateOne(
         { _id: guildId },
