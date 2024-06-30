@@ -73,7 +73,7 @@ module.exports = (database, client) => {
       .setDMPermission(false)
       .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
     async execute(interaction) {
-      const channel = await getQuoteChannel(interaction.guildId)
+      await getQuoteChannel(interaction.guildId)
         .then(async (channel) => {
           const messages = await channel.messages.fetch();
           const data = processQuotes(messages);
