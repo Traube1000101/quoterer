@@ -16,6 +16,7 @@ module.exports = (database, client) => {
         createdTimestamp: message[1].createdTimestamp,
         content: [],
         authors: [],
+        imported: true,
       };
 
       const messageId = message[0];
