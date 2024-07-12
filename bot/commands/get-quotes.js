@@ -153,7 +153,6 @@ module.exports = (database, client) => {
           ephemeral: true,
         });
       } catch (error) {
-        console.log(error);
         await reply({
           content: "Error: " + error.message,
           ephemeral: true,
