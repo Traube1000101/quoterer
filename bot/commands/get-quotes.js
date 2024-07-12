@@ -1,5 +1,9 @@
 const workingSir = process.cwd();
-const { SlashCommandBuilder, PermissionFlagsBits } = require("discord.js");
+const {
+  SlashCommandBuilder,
+  PermissionFlagsBits,
+  Collection,
+} = require("discord.js");
 const { performance } = require("perf_hooks");
 require("dotenv").config({ path: `${workingSir}/../.env` });
 
@@ -9,8 +13,7 @@ module.exports = (database, client) => {
     client
   );
 
-  function processQuotes(messages) {
-    const startTime = performance.now();
+  async function processQuotes(performanceMonitor, messages) {
     for (const message of messages) {
       let quote = {
         createdTimestamp: message[1].createdTimestamp,
@@ -52,17 +55,38 @@ module.exports = (database, client) => {
       const createdIn = messageText.match(/(?<=\sin\s).*/);
       (createdIn && (quote.createdIn = createdIn[0])) ||
         (quote.createdIn = new Date(quote.createdTimestamp).getFullYear());
-
       quote.invalid && (quote.originalMessage = messageText);
 
       sendNude(messageId, quote);
+
+      await performanceMonitor.deferIfNeeded();
     }
-    const endTime = performance.now();
 
     return {
       count: messages.size,
-      elapsedTime: (endTime - startTime).toFixed(2),
     };
+  }
+
+  async function fetchMessages(performanceMonitor, channel, limit = 10000) {
+    let collection = new Collection();
+    let lastId = null;
+
+    while (collection.size < limit) {
+      const options = { limit: 100, cache: false };
+      lastId && (options.before = lastId);
+
+      const messages = await channel.messages.fetch(options);
+      if (messages) {
+        collection = collection.concat(messages);
+        lastId = messages.last().id;
+      }
+      if (messages.size < 100) {
+        break;
+      }
+      await performanceMonitor.deferIfNeeded();
+    }
+
+    return collection;
   }
 
   return {
@@ -73,22 +97,47 @@ module.exports = (database, client) => {
       )
       .setDMPermission(false)
       .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
+
     async execute(interaction) {
-      await getQuoteChannel(interaction.guildId)
-        .then(async (channel) => {
-          const messages = await channel.messages.fetch();
-          const data = processQuotes(messages);
-          interaction.reply({
-            content: `Read and processed ${data.count} Quotes in ${data.elapsedTime}ms.`,
-            ephemeral: true,
-          });
-        })
-        .catch((error) => {
-          interaction.reply({
-            content: "Error: " + error.message,
-            ephemeral: true,
-          });
+      let performanceMonitor = {
+        deffered: false,
+        start: performance.now(),
+        getDuration() {
+          return performance.now() - this.start;
+        },
+        async deferIfNeeded() {
+          if (!this.deffered && this.getDuration() > 1250.0) {
+            await interaction.deferReply({ ephemeral: true });
+            this.deffered = true;
+          }
+        },
+      };
+
+      async function reply(message) {
+        if (performanceMonitor.deffered === true) {
+          await interaction.editReply(message);
+        } else {
+          await interaction.reply(message);
+        }
+      }
+
+      try {
+        const channel = await getQuoteChannel(interaction.guildId),
+          messages = await fetchMessages(performanceMonitor, channel),
+          data = await processQuotes(performanceMonitor, messages);
+        await reply({
+          content: `Read and processed ${
+            data.count
+          } Quotes in ${performanceMonitor.getDuration().toFixed(2)}ms.`,
+          ephemeral: true,
         });
+      } catch (error) {
+        console.log(error);
+        await reply({
+          content: "Error: " + error.message,
+          ephemeral: true,
+        });
+      }
     },
   };
 };
