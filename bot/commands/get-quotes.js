@@ -13,6 +13,22 @@ module.exports = (database, client) => {
     client
   );
 
+  function getRest(string, matches) {
+    if (matches) {
+      const lastMatch = matches[matches.length - 1],
+        lastMatchPos = string.indexOf(lastMatch) + lastMatch.length + 1;
+      return string.slice(lastMatchPos);
+    }
+  }
+
+  function getRest(string, matches) {
+    if (matches) {
+      const lastMatch = matches[matches.length - 1],
+        lastMatchPos = string.indexOf(lastMatch) + lastMatch.length + 1;
+      return string.slice(lastMatchPos);
+    }
+  }
+
   async function processQuotes(performanceMonitor, messages) {
     for (const message of messages) {
       let quote = {
@@ -24,10 +40,15 @@ module.exports = (database, client) => {
 
       const messageId = message[0];
       const messageText = message[1].content.replace(/\*\*/g, "");
-      const texts = messageText.match(/(?<=")[\w.!?äöü].*?[\w.!?äöü](?=")/g); // Match texts between quotes
-      (texts && (quote.content = texts)) || (quote.invalid = true);
+      const texts = messageText.match(/(?<=").*?(?=")/g); // Match texts between quotes
+      let messageTextRest = messageText;
 
-      const authorIds = messageText.match(/(?<=<@).*?(?=>)/g);
+      if (texts) {
+        quote.content = texts;
+        messageTextRest = getRest(messageText, texts);
+      } else quote.invalid = true;
+
+      const authorIds = messageTextRest.match(/(?<=<@).*?(?=>)/g);
       if (authorIds) {
         for (const authorId of authorIds) {
           const author = client.users.cache.get(authorId);
@@ -40,7 +61,7 @@ module.exports = (database, client) => {
             });
         }
       } else {
-        let byString = messageText.match(/(?<=by\s).*(?=\sin)/); // Match string between by & in
+        let byString = messageTextRest.match(/(?<=by\s).*(?=\sin)/); // Match string between by & in
         if (byString) {
           byString = byString[0];
           byString.split(", ").forEach((author) => {
@@ -52,7 +73,7 @@ module.exports = (database, client) => {
           quote.invalid = true;
         }
       }
-      const createdIn = messageText.match(/(?<=\sin\s).*/);
+      const createdIn = messageTextRest.match(/(?<=\sin\s).*/);
       (createdIn && (quote.createdIn = createdIn[0])) ||
         (quote.createdIn = new Date(quote.createdTimestamp).getFullYear());
       quote.invalid && (quote.originalMessage = messageText);
