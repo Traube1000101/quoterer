@@ -34,7 +34,7 @@ for (const file of commandFiles) {
 }
 
 client.on("ready", () => {
-  client.user.setActivity("Searching for quotes...", {
+  client.user.setActivity("\u{1F4DC} Fishing for quotes", {
     type: 4,
   });
 });
@@ -72,7 +72,7 @@ console.log("Bot is running!");
 process.on("SIGINT", async () => {
   console.log("Shutting down...");
   await dbClient.close();
-  await client.user.setActivity("Sleeping...", {
+  await client.user.setActivity("\u{1F4A4} Sleeping", {
     type: 4,
   });
   process.exit();
