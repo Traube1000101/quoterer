@@ -5,7 +5,6 @@ const {
   Collection,
 } = require("discord.js");
 const { performance } = require("perf_hooks");
-require("dotenv").config({ path: `${workingSir}/../.env` });
 
 module.exports = (database, client) => {
   const { sendNude, getQuoteChannel } = require(`${workingSir}/modules`)(

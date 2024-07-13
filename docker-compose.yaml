@@ -1,20 +1,29 @@
 name: quote-gatherer
 services:
+  bot:
+    depends_on:
+      - mongo
+    build: ./bot
+    restart: unless-stopped
+    env_file: ".env"
+    environment:
+      db_uri: mongodb://${db_user}:${db_password}@mongo:27017/
+      bot_id: ${bot_id}
+      bot_token: ${bot_token}
+
   mongo:
     image: mongo
-    restart: always
+    restart: unless-stopped
     env_file: ".env"
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${db_user}
       MONGO_INITDB_ROOT_PASSWORD: ${db_password}
-    ports:
-      - 27017:27017
     volumes:
       - "./db/data:/data/db"
 
   mongo-express:
     image: mongo-express
-    restart: always
+    restart: unless-stopped
     ports:
       - 8081:8081
     env_file: ".env"
@@ -22,4 +31,6 @@ services:
       ME_CONFIG_MONGODB_ADMINUSERNAME: ${db_user}
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${db_password}
       ME_CONFIG_MONGODB_URL: mongodb://${db_user}:${db_password}@mongo:27017/
-      ME_CONFIG_BASICAUTH: false
+      ME_CONFIG_BASICAUTH_USERNAME: ${db_interface_user}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${db_interface_password}
+      ME_CONFIG_BASICAUTH: true

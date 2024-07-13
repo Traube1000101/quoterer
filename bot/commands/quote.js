@@ -6,7 +6,6 @@ const {
   inlineCode,
 } = require("discord.js");
 const { performance } = require("perf_hooks");
-require("dotenv").config({ path: "../../.env" });
 
 module.exports = (database, client) => {
   const { sendNude, getQuoteChannel } = require(`${workingSir}/modules`)(

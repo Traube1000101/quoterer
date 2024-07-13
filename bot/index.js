@@ -1,10 +1,9 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { Client, Collection, Events, GatewayIntentBits } = require("discord.js");
-require("dotenv").config({ path: "../.env" });
 const { MongoClient } = require("mongodb");
 
-const uri = `mongodb://${process.env.db_user}:${process.env.db_password}@localhost:27017/`;
+const uri = process.env.db_uri;
 const dbClient = new MongoClient(uri);
 const database = dbClient.db("quote-gatherer");
 
