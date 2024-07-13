@@ -5,7 +5,15 @@ module.exports = (database, client) => {
     try {
       await quotesCollection.updateOne(
         { _id: messageId },
-        { $set: quote },
+        {
+          $unset: { invalid: null, originalMessage: null },
+        }
+      );
+      await quotesCollection.updateOne(
+        { _id: messageId },
+        {
+          $set: quote,
+        },
         { upsert: true }
       );
     } catch (error) {
