@@ -15,16 +15,8 @@ module.exports = (database, client) => {
 
   function getRest(string, matches) {
     if (matches) {
-      const lastMatch = matches[matches.length - 1],
-        lastMatchPos = string.indexOf(lastMatch) + lastMatch.length + 1;
-      return string.slice(lastMatchPos);
-    }
-  }
-
-  function getRest(string, matches) {
-    if (matches) {
-      const lastMatch = matches[matches.length - 1],
-        lastMatchPos = string.indexOf(lastMatch) + lastMatch.length + 1;
+      const lastMatch = matches[matches?.length - 1],
+        lastMatchPos = string.indexOf(lastMatch) + lastMatch?.length + 1;
       return string.slice(lastMatchPos);
     }
   }
