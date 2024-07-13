@@ -33,11 +33,12 @@ module.exports = (database, client) => {
       const messageId = message[0];
       const messageText = message[1].content.replace(/\*\*/g, "");
       const texts = messageText.match(/(?<=").*?(?=")/g); // Match texts between quotes
-      let messageTextRest = messageText;
 
+      let messageTextRest = messageText;
       if (texts) {
-        quote.content = texts;
-        messageTextRest = getRest(messageText, texts);
+        const filteredTexts = texts.filter((e) => e.trim().length > 0); // Filter out strings with just spaces
+        quote.content = filteredTexts;
+        messageTextRest = getRest(messageText, filteredTexts);
       } else quote.invalid = true;
 
       const authorIds = messageTextRest.match(/(?<=<@).*?(?=>)/g);
