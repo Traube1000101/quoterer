@@ -6,7 +6,7 @@ const {
 } = require("discord.js");
 
 module.exports = (database) => {
-  const { setChannel } = require(`${workingSir}/modules`)(database);
+  const { setChannel } = require(`${workingSir}/modules/db.js`)(database);
   return {
     data: new SlashCommandBuilder()
       .setName("set-channel")

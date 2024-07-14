@@ -7,7 +7,7 @@ const {
 const { performance } = require("perf_hooks");
 
 module.exports = (database, client) => {
-  const { sendNude, getQuoteChannel } = require(`${workingSir}/modules`)(
+  const { sendNude, getQuoteChannel } = require(`${workingSir}/modules/db.js`)(
     database,
     client
   );
