@@ -1,20 +1,31 @@
 module.exports = (database, client) => {
   // Send Noteworthy Unified Discord Entry
-  async function sendNude(messageId, quote) {
-    const quotesCollection = database.collection("quotes");
+  function sendNude(messageId, quote) {
     try {
-      await quotesCollection.updateOne(
-        { _id: messageId },
+      const quotesCollection = database.collection("quotes");
+      quotesCollection
+        .updateOne(
+          { _id: messageId },
+          {
+            $unset: { invalid: null, originalMessage: null },
+          }
+        )
+        .then(() => {
+          quotesCollection.updateOne(
+            { _id: messageId },
+            {
+              $set: quote,
+            },
+            { upsert: true }
+          );
+        });
+
+      const serversCollection = database.collection("servers");
+      serversCollection.updateOne(
+        { _id: quote.serverId },
         {
-          $unset: { invalid: null, originalMessage: null },
+          $addToSet: { quotes: messageId },
         }
-      );
-      await quotesCollection.updateOne(
-        { _id: messageId },
-        {
-          $set: quote,
-        },
-        { upsert: true }
       );
     } catch (error) {
       console.error("Error:", error);

@@ -20,9 +20,10 @@ module.exports = (database, client) => {
     }
   }
 
-  async function processQuotes(performanceMonitor, messages) {
+  async function processQuotes(performanceMonitor, messages, serverId) {
     for (const message of messages) {
       let quote = {
+        serverId: serverId,
         createdTimestamp: message[1].createdTimestamp,
         content: [],
         authors: [],
@@ -137,7 +138,11 @@ module.exports = (database, client) => {
       try {
         const channel = await getQuoteChannel(interaction.guildId),
           messages = await fetchMessages(performanceMonitor, channel),
-          data = await processQuotes(performanceMonitor, messages);
+          data = await processQuotes(
+            performanceMonitor,
+            messages,
+            interaction.guildId
+          );
         await reply({
           content: `Read and processed ${
             data.count
