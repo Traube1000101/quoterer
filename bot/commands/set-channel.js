@@ -1,3 +1,4 @@
+const workingSir = process.cwd();
 const {
   SlashCommandBuilder,
   ChannelType,
@@ -5,26 +6,7 @@ const {
 } = require("discord.js");
 
 module.exports = (database) => {
-  async function setChannel(guildId, channelId, channelName) {
-    const serversCollection = database.collection("servers");
-    try {
-      await serversCollection.updateOne(
-        { _id: guildId },
-        {
-          $set: {
-            channel: {
-              id: channelId,
-              name: channelName,
-            },
-          },
-        },
-        { upsert: true }
-      );
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  }
-
+  const { setChannel } = require(`${workingSir}/modules`)(database);
   return {
     data: new SlashCommandBuilder()
       .setName("set-channel")
