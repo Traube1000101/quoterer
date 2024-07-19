@@ -38,6 +38,8 @@ module.exports = (database, client) => {
         .then(async (channel) => {
           const createdDate = new Date();
           let quote = {
+            serverId: interaction.guildId,
+            publisher: interaction.user.id,
             createdTimestamp: +createdDate,
             content: [],
             authors: [],
@@ -76,7 +78,6 @@ module.exports = (database, client) => {
           });
         })
         .catch((error) => {
-          console.log("Interaction:", interaction);
           interaction.reply({
             embeds: [
               {

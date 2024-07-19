@@ -20,10 +20,11 @@ module.exports = (database, client) => {
     }
   }
 
-  async function processQuotes(performanceMonitor, messages, serverId) {
+  async function processQuotes(performanceMonitor, messages, serverId, userId) {
     for (const message of messages) {
       let quote = {
         serverId: serverId,
+        publisher: userId,
         createdTimestamp: message[1].createdTimestamp,
         content: [],
         authors: [],
@@ -141,7 +142,8 @@ module.exports = (database, client) => {
           data = await processQuotes(
             performanceMonitor,
             messages,
-            interaction.guildId
+            interaction.guildId,
+            interaction.user.id
           );
         await reply({
           content: `Read and processed ${
