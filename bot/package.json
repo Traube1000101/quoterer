@@ -1,12 +1,19 @@
 {
-  "name": "quote-gatherer",
+  "name": "quoterer",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "start": "node .",
     "deploy": "node deploy-commands.js"
   },
-  "keywords": ["discord", "bot", "quote", "app", "db", "database"],
+  "keywords": [
+    "discord",
+    "bot",
+    "quote",
+    "app",
+    "db",
+    "database"
+  ],
   "author": "Traube1000101",
   "license": "ISC",
   "description": "A Discord Bot which sends quotes in a guild and stores them in a database.",

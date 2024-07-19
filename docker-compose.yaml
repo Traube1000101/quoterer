@@ -1,4 +1,4 @@
-name: quote-gatherer
+name: quoterer
 services:
   bot:
     depends_on:
