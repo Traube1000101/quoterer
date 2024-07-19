@@ -38,10 +38,15 @@ module.exports = (database, client) => {
     if (!authorIds) throw new Error("No author defined.");
     quote.authors = authorIds.map((authorId) => {
       const author = client.users.cache.get(authorId);
+      if (!author) {
+        quote.invalid = true;
+        return;
+      }
+      const { displayName, username } = author;
       return {
         id: authorId,
-        name: author.displayName,
-        username: author.username,
+        name: displayName,
+        username: username,
         avatar: author.avatarURL(),
       };
     });

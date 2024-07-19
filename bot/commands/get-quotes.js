@@ -44,16 +44,20 @@ module.exports = (database, client) => {
 
       const authorIds = messageTextRest.match(/(?<=<@).*?(?=>)/g);
       if (authorIds) {
-        for (const authorId of authorIds) {
+        quote.authors = authorIds.map((authorId) => {
           const author = client.users.cache.get(authorId);
-          author &&
-            quote.authors.push({
-              id: author.id,
-              name: author.displayName,
-              username: author.username,
-              avatar: author.avatarURL(),
-            });
-        }
+          if (!author) {
+            quote.invalid = true;
+            return;
+          }
+          const { displayName, username } = author;
+          return {
+            id: authorId,
+            name: displayName,
+            username: username,
+            avatar: author.avatarURL(),
+          };
+        });
       } else {
         let byString = messageTextRest.match(/(?<=by\s).*(?=\sin)/); // Match string between by & in
         if (byString) {
