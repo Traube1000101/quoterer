@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node .",
-    "deploy": "node deploy-commands.js"
+    "deploy": "node deploy-commands.js",
+    "link": "link=\"https://discord.com/oauth2/authorize?client_id=1251255160576020591&permissions=562949953489920&integration_type=0&scope=bot+applications.commands\"; echo \"Link:\n$link\"; xdg-open $link"
   },
   "keywords": [
     "discord",
