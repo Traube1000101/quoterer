@@ -6,10 +6,10 @@
     "start": "node .",
     "deploy": "node deploy-commands.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["discord", "bot", "quote", "app", "db", "database"],
+  "author": "Traube1000101",
   "license": "ISC",
-  "description": "",
+  "description": "A Discord Bot which sends quotes in a guild and stores them in a database.",
   "dependencies": {
     "discord.js": "^14.15.3",
     "dotenv": "^16.4.5",
