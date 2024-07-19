@@ -19,9 +19,11 @@ module.exports = (database, client) => {
       serverId: interaction.guildId,
       publisher: interaction.user.id,
       createdTimestamp: +createdDate,
+      createdIn: createdDate.getFullYear(),
       content: [],
       authors: [],
     };
+
     const textStr = interaction.options.getString("text");
     if (!textStr)
       throw new Error(
@@ -46,7 +48,7 @@ module.exports = (database, client) => {
 
     const quoteString = `"${quote.content.join('" "')}" by ${quote.authors
       .map((author) => bold(author.name))
-      .join(", ")} in ${createdDate.getFullYear()}`;
+      .join(", ")} in ${quote.createdIn}`;
 
     const { id } = await channel.send(quoteString);
 
