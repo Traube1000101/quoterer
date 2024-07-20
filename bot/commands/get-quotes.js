@@ -5,12 +5,11 @@ const {
   Collection,
 } = require("discord.js");
 const { performance } = require("perf_hooks");
+const { v4: uuidv4 } = require("uuid");
 
 module.exports = (database, client) => {
-  const { sendNude, getQuoteChannel } = require(`${workingSir}/modules/db.js`)(
-    database,
-    client
-  );
+  const { sendNude, getQuoteChannel, updateUsers, pushUser } =
+    require(`${workingSir}/modules/db.js`)(database, client);
 
   function getRest(string, matches) {
     if (matches) {
@@ -24,12 +23,13 @@ module.exports = (database, client) => {
     for (const message of messages) {
       let quote = {
         serverId: serverId,
-        publisher: userId,
+        publisherId: userId,
         createdTimestamp: message[1].createdTimestamp,
         content: [],
-        authors: [],
+        authorIds: [],
         imported: true,
       };
+      updateUsers([quote.publisherId]);
 
       const messageId = message[0];
       const messageText = message[1].content.replace(/\*\*/g, "");
@@ -44,28 +44,19 @@ module.exports = (database, client) => {
 
       const authorIds = messageTextRest.match(/(?<=<@).*?(?=>)/g);
       if (authorIds) {
-        quote.authors = authorIds.map((authorId) => {
-          const author = client.users.cache.get(authorId);
-          if (!author) {
-            quote.invalid = true;
-            return;
-          }
-          const { displayName, username } = author;
-          return {
-            id: authorId,
-            name: displayName,
-            username: username,
-            avatar: author.avatarURL(),
-          };
-        });
+        updateUsers(authorIds);
+        quote.authorIds = authorIds;
       } else {
         let byString = messageTextRest.match(/(?<=by\s).*(?=\sin)/); // Match string between by & in
         if (byString) {
           byString = byString[0];
-          byString.split(", ").forEach((author) => {
-            quote.authors.push({
-              name: author,
-            });
+          byString.split(", ").forEach((authorName) => {
+            const author = {
+              _id: uuidv4(),
+              name: authorName,
+            };
+            pushUser(author);
+            quote.authorIds.push(author._id);
           });
         } else {
           quote.invalid = true;

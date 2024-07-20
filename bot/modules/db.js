@@ -32,6 +32,49 @@ module.exports = (database, client) => {
     }
   }
 
+  function fetchUser(userId) {
+    const dcUser = client.users.cache.get(userId);
+    if (!dcUser) {
+      return { invalid: true };
+    }
+    const { displayName, username } = dcUser;
+    return {
+      _id: userId,
+      name: displayName,
+      username: username,
+      avatar: dcUser.avatarURL(),
+    };
+  }
+
+  function pushUser(user) {
+    const usersCollection = database.collection("users");
+    usersCollection.updateOne(
+      { _id: user._id },
+      {
+        $set: user,
+      },
+      { upsert: true }
+    );
+  }
+
+  function updateAllUsers() {
+    const usersCollection = database.collection("users");
+    usersCollection.find({}).then((users) => {
+      users.forEach((user) => {
+        const updatedUser = fetchUser(user._id);
+        pushUser(updatedUser);
+      });
+    });
+  }
+
+  function updateUsers(userIds) {
+    return userIds.map((userId) => {
+      const user = fetchUser(userId);
+      pushUser(user);
+      return user;
+    });
+  }
+
   async function getQuoteChannel(guildId) {
     const serversCollection = database.collection("servers");
     const result = await serversCollection.findOne({ _id: guildId });
@@ -63,5 +106,12 @@ module.exports = (database, client) => {
     }
   }
 
-  return { sendNude, getQuoteChannel, setChannel };
+  return {
+    sendNude,
+    getQuoteChannel,
+    setChannel,
+    updateUsers,
+    updateAllUsers,
+    pushUser,
+  };
 };

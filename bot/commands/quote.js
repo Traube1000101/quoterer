@@ -8,21 +8,20 @@ const {
 const { performance } = require("perf_hooks");
 
 module.exports = (database, client) => {
-  const { sendNude, getQuoteChannel } = require(`${workingSir}/modules/db.js`)(
-    database,
-    client
-  );
+  const { sendNude, getQuoteChannel, updateUsers } =
+    require(`${workingSir}/modules/db.js`)(database, client);
 
   async function processQuote(channel, interaction) {
     const createdDate = new Date();
     let quote = {
       serverId: interaction.guildId,
-      publisher: interaction.user.id,
+      publisherId: interaction.user.id,
       createdTimestamp: +createdDate,
       createdIn: createdDate.getFullYear(),
       content: [],
-      authors: [],
+      authorIds: [],
     };
+    updateUsers([quote.publisherId]);
 
     const textStr = interaction.options.getString("text");
     if (!textStr)
@@ -36,23 +35,11 @@ module.exports = (database, client) => {
     const authorStr = interaction.options.getString("author");
     const authorIds = authorStr.match(/(?<=<@).*?(?=>)/g);
     if (!authorIds) throw new Error("No author defined.");
-    quote.authors = authorIds.map((authorId) => {
-      const author = client.users.cache.get(authorId);
-      if (!author) {
-        quote.invalid = true;
-        return;
-      }
-      const { displayName, username } = author;
-      return {
-        id: authorId,
-        name: displayName,
-        username: username,
-        avatar: author.avatarURL(),
-      };
-    });
+    const authors = updateUsers(authorIds);
+    quote.authorIds = authorIds;
 
-    const quoteString = `"${quote.content.join('" "')}" by ${quote.authors
-      .map((author) => bold(author.name))
+    const quoteString = `"${quote.content.join('" "')}" by ${authors
+      .map((author) => author && bold(author.name))
       .join(", ")} in ${quote.createdIn}`;
 
     const { id } = await channel.send(quoteString);
