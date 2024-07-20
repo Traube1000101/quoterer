@@ -87,18 +87,13 @@ module.exports = (database, client) => {
     return await client.channels.fetch(result.channel.id);
   }
 
-  async function setChannel(guildId, channelId, channelName) {
+  async function setChannel(guildId, server) {
     const serversCollection = database.collection("servers");
     try {
       await serversCollection.updateOne(
         { _id: guildId },
         {
-          $set: {
-            channel: {
-              id: channelId,
-              name: channelName,
-            },
-          },
+          $set: server,
         },
         { upsert: true }
       );

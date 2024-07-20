@@ -21,10 +21,18 @@ module.exports = (database) => {
           .setRequired(true)
       ),
     async execute(interaction) {
-      const channel = interaction.options.getChannel("channel");
-      setChannel(interaction.guildId, channel.id, channel.name);
+      const { id, name } = interaction.options.getChannel("channel");
+      const server = {
+        name: interaction.guild.name,
+        icon: interaction.guild.iconURL(),
+        channel: {
+          id,
+          name,
+        },
+      };
+      setChannel(interaction.guildId, server);
       await interaction.reply({
-        content: `Successfully set the quote channel to "${channel.name}".`,
+        content: `Successfully set the quote channel to "${name}".`,
         ephemeral: true,
       });
     },
