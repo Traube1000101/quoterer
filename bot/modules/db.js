@@ -1,18 +1,19 @@
 module.exports = (database, client) => {
   // Send Noteworthy Unified Discord Entry
   function sendNude(messageId, quote) {
+    const messageIdInt = parseInt(messageId);
     try {
       const quotesCollection = database.collection("quotes");
       quotesCollection
         .updateOne(
-          { _id: messageId },
+          { _id: messageIdInt },
           {
             $unset: { invalid: null, originalMessage: null },
           }
         )
         .then(() => {
           quotesCollection.updateOne(
-            { _id: messageId },
+            { _id: messageIdInt },
             {
               $set: quote,
             },
@@ -24,7 +25,7 @@ module.exports = (database, client) => {
       serversCollection.updateOne(
         { _id: quote.serverId },
         {
-          $addToSet: { quotes: messageId },
+          $addToSet: { quotes: messageIdInt },
         }
       );
     } catch (error) {
