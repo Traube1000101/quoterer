@@ -6,6 +6,7 @@ const { MongoClient } = require("mongodb");
 const uri = process.env.db_uri;
 const dbClient = new MongoClient(uri);
 const database = dbClient.db("quote-gatherer");
+const workingSir = process.cwd();
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 client.commands = new Collection();
@@ -31,6 +32,16 @@ for (const file of commandFiles) {
     );
   }
 }
+
+const { updateAllUsers } = require(`${workingSir}/modules/db.js`)(
+  database,
+  client
+);
+const userUpdateInterval = 5; // Interval between user database updates in minutes
+updateAllUsers();
+setInterval(() => {
+  updateAllUsers();
+}, userUpdateInterval * 60 * 1000);
 
 client.on("ready", () => {
   client.user.setActivity("\u{1F4DC} Fishing for quotes", {

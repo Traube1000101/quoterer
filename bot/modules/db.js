@@ -1,4 +1,7 @@
 module.exports = (database, client) => {
+  const serversCollection = database.collection("servers");
+  const usersCollection = database.collection("users");
+
   // Send Noteworthy Unified Discord Entry
   function sendNude(messageId, quote) {
     const messageIdInt = parseInt(messageId);
@@ -21,7 +24,6 @@ module.exports = (database, client) => {
           );
         });
 
-      const serversCollection = database.collection("servers");
       serversCollection.updateOne(
         { _id: quote.serverId },
         {
@@ -48,7 +50,6 @@ module.exports = (database, client) => {
   }
 
   function pushUser(user) {
-    const usersCollection = database.collection("users");
     usersCollection.updateOne(
       { _id: user._id },
       {
@@ -59,13 +60,15 @@ module.exports = (database, client) => {
   }
 
   function updateAllUsers() {
-    const usersCollection = database.collection("users");
-    usersCollection.find({}).then((users) => {
-      users.forEach((user) => {
-        const updatedUser = fetchUser(user._id);
-        pushUser(updatedUser);
+    usersCollection
+      .find({})
+      .toArray()
+      .then((users) => {
+        users.forEach((user) => {
+          const updatedUser = fetchUser(user._id);
+          pushUser(updatedUser);
+        });
       });
-    });
   }
 
   function updateUsers(userIds) {
@@ -77,7 +80,6 @@ module.exports = (database, client) => {
   }
 
   async function getQuoteChannel(guildId) {
-    const serversCollection = database.collection("servers");
     const result = await serversCollection.findOne({ _id: guildId });
     if (!result?.channel?.id) {
       throw new Error(
@@ -88,7 +90,6 @@ module.exports = (database, client) => {
   }
 
   async function setChannel(guildId, server) {
-    const serversCollection = database.collection("servers");
     try {
       await serversCollection.updateOne(
         { _id: guildId },
