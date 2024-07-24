@@ -36,9 +36,10 @@ module.exports = (database, client) => {
   }
 
   function fetchUser(userId) {
+    if (userId === "" || userId === undefined || userId === null) return null;
     const dcUser = client.users.cache.get(userId);
     if (!dcUser) {
-      return { invalid: true };
+      return { _id: userId, invalid: true };
     }
     const { displayName, username } = dcUser;
     return {
@@ -49,14 +50,21 @@ module.exports = (database, client) => {
     };
   }
 
-  function pushUser(user) {
-    usersCollection.updateOne(
+  async function pushUser(user) {
+    await usersCollection.updateOne(
       { _id: user._id },
       {
         $set: user,
       },
       { upsert: true }
     );
+  }
+
+  async function getUserByName(name) {
+    const user = await usersCollection.find({ name }).toArray();
+    console.log("User:", user, "Length:", user.length);
+    console.log("user[0]:", user[0]);
+    return user[0] || false;
   }
 
   function updateAllUsers() {
@@ -71,12 +79,14 @@ module.exports = (database, client) => {
       });
   }
 
-  function updateUsers(userIds) {
-    return userIds.map((userId) => {
-      const user = fetchUser(userId);
-      pushUser(user);
-      return user;
-    });
+  async function updateUsers(userIds) {
+    return Promise.all(
+      userIds.map(async (userId) => {
+        const user = await fetchUser(userId);
+        await pushUser(user);
+        return user;
+      })
+    );
   }
 
   async function getQuoteChannel(guildId) {
@@ -110,5 +120,6 @@ module.exports = (database, client) => {
     updateUsers,
     updateAllUsers,
     pushUser,
+    getUserByName,
   };
 };

@@ -5,10 +5,10 @@ const {
   Collection,
 } = require("discord.js");
 const { performance } = require("perf_hooks");
-const { v4: uuidv4 } = require("uuid");
+const { v5: uuidv5, validate: uuidValidate } = require("uuid");
 
 module.exports = (database, client) => {
-  const { sendNude, getQuoteChannel, updateUsers, pushUser } =
+  const { sendNude, getQuoteChannel, updateUsers, pushUser, getUserByName } =
     require(`${workingSir}/modules/db.js`)(database, client);
 
   function getRest(string, matches) {
@@ -20,6 +20,12 @@ module.exports = (database, client) => {
   }
 
   async function processQuotes(performanceMonitor, messages, serverId, userId) {
+    const namespace = process.env.namespace_uuid;
+    if (!uuidValidate(namespace))
+      throw new Error(
+        "Invalid namespace UUID! check if its defined correctly in .env file."
+      );
+
     for (const message of messages) {
       let quote = {
         serverId: serverId,
@@ -29,7 +35,7 @@ module.exports = (database, client) => {
         authorIds: [],
         imported: true,
       };
-      updateUsers([quote.publisherId]);
+      await updateUsers([quote.publisherId]);
 
       const messageId = message[0];
       const messageText = message[1].content.replace(/\*\*/g, "");
@@ -44,20 +50,23 @@ module.exports = (database, client) => {
 
       const authorIds = messageTextRest.match(/(?<=<@).*?(?=>)/g);
       if (authorIds) {
-        updateUsers(authorIds);
+        await updateUsers(authorIds);
         quote.authorIds = authorIds;
       } else {
         let byString = messageTextRest.match(/(?<=by\s).*(?=\sin)/); // Match string between by & in
         if (byString) {
           byString = byString[0];
-          byString.split(", ").forEach((authorName) => {
-            const author = {
-              _id: uuidv4(),
-              name: authorName,
-            };
-            pushUser(author);
+          for (const authorName of byString.split(", ")) {
+            let author = await getUserByName(authorName);
+            if (author === false) {
+              author = {
+                _id: uuidv5(authorName, namespace),
+                name: authorName,
+              };
+              await pushUser(author);
+            }
             quote.authorIds.push(author._id);
-          });
+          }
         } else {
           quote.invalid = true;
         }
