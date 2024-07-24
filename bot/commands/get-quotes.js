@@ -48,7 +48,7 @@ module.exports = (database, client) => {
         messageTextRest = getRest(messageText, filteredTexts);
       } else quote.invalid = true;
 
-      const authorIds = messageTextRest.match(/(?<=<@).*?(?=>)/g);
+      const authorIds = messageTextRest.match(/(?<=<@!?)\d+(?=>)/g);
       if (authorIds) {
         await updateUsers(authorIds);
         quote.authorIds = authorIds;
