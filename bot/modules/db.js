@@ -62,8 +62,6 @@ module.exports = (database, client) => {
 
   async function getUserByName(name) {
     const user = await usersCollection.find({ name }).toArray();
-    console.log("User:", user, "Length:", user.length);
-    console.log("user[0]:", user[0]);
     return user[0] || false;
   }
 
@@ -74,7 +72,7 @@ module.exports = (database, client) => {
       .then((users) => {
         users.forEach((user) => {
           const updatedUser = fetchUser(user._id);
-          pushUser(updatedUser);
+          if (!updatedUser === null) pushUser(updatedUser);
         });
       });
   }
