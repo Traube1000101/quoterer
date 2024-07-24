@@ -8,20 +8,16 @@ module.exports = (database, client) => {
     try {
       const quotesCollection = database.collection("quotes");
       quotesCollection
-        .updateOne(
-          { _id: messageIdInt },
-          {
-            $unset: { invalid: null, originalMessage: null },
+        .insertOne({
+          _id: messageIdInt,
+          ...quote,
+        })
+        .catch((err) => {
+          if (err.code === 11000) {
+            console.log("Document already exists, not inserting.");
+          } else {
+            throw err;
           }
-        )
-        .then(() => {
-          quotesCollection.updateOne(
-            { _id: messageIdInt },
-            {
-              $set: quote,
-            },
-            { upsert: true }
-          );
         });
 
       serversCollection.updateOne(
