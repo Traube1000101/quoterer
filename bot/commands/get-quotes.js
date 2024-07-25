@@ -43,7 +43,9 @@ module.exports = (database, client) => {
 
       let messageTextRest = messageText;
       if (texts) {
-        const filteredTexts = texts.filter((e) => e.trim().length > 0); // Filter out strings with just spaces
+        const filteredTexts = texts.filter(
+          (e) => e.trim().length > 0 && e.match(/\s*-\s*/) === null
+        ); // Filter out strings with just spaces and hyphens
         quote.content = filteredTexts;
         messageTextRest = getRest(messageText, filteredTexts);
       } else quote.invalid = true;
