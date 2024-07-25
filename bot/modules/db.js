@@ -61,6 +61,11 @@ module.exports = (database, client) => {
     return user[0] || false;
   }
 
+  async function getUserById(id) {
+    const user = await usersCollection.find({ _id: id }).toArray();
+    return user[0] || false;
+  }
+
   function updateAllUsers() {
     usersCollection
       .find({})
@@ -107,6 +112,22 @@ module.exports = (database, client) => {
     }
   }
 
+  async function getRandomQuote() {
+    const quotesCollection = database.collection("quotes");
+    try {
+      const cursor = quotesCollection.aggregate([{ $sample: { size: 1 } }]);
+      const randomQuote = await cursor.next();
+
+      if (randomQuote) {
+        return randomQuote;
+      } else {
+        throw Error("No quotes found.");
+      }
+    } catch (err) {
+      console.error("Error getting random quote:", err);
+    }
+  }
+
   return {
     sendNude,
     getQuoteChannel,
@@ -115,5 +136,7 @@ module.exports = (database, client) => {
     updateAllUsers,
     pushUser,
     getUserByName,
+    getRandomQuote,
+    getUserById,
   };
 };

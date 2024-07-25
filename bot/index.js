@@ -33,10 +33,8 @@ for (const file of commandFiles) {
   }
 }
 
-const { updateAllUsers } = require(`${workingSir}/modules/db.js`)(
-  database,
-  client
-);
+const { updateAllUsers, getRandomQuote, getUserById } =
+  require(`${workingSir}/modules/db.js`)(database, client);
 const userUpdateInterval = 5; // Interval between user database updates in minutes
 updateAllUsers();
 setInterval(() => {
@@ -44,9 +42,30 @@ setInterval(() => {
 }, userUpdateInterval * 60 * 1000);
 
 client.on("ready", () => {
-  client.user.setActivity("\u{1F4DC} Fishing for quotes", {
-    type: 4,
-  });
+  const setActivity = (activity) =>
+    client.user.setActivity(activity, {
+      type: 4,
+    });
+  const setRandomQuote = async () => {
+    getRandomQuote().then(async (quote) => {
+      if (quote) {
+        const authors = await Promise.all(
+          quote.authorIds.map(async (authorId) => await getUserById(authorId))
+        );
+        if (authors) {
+          const quoteString = `"${quote.content.join('" "')}" by ${authors
+            .map((author) => author.name)
+            .join(", ")} in ${quote.createdIn}`;
+          setActivity(quoteString);
+          return;
+        }
+      }
+      setActivity("\u{1F4DC} Fishing for quotes");
+    });
+  };
+
+  setRandomQuote();
+  setInterval(setRandomQuote, 300000);
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
