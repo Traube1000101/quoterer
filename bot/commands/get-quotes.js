@@ -38,10 +38,10 @@ module.exports = (database, client) => {
       await updateUsers([quote.publisherId]);
 
       const messageId = message[0];
-      const messageText = message[1].content.replace(/\*\*/g, "");
-      const texts = messageText.match(/(?<=").*?(?=")/g); // Match texts between quotes
+      quote.originalMessage = message[1].content.replace(/\*\*/g, "");
+      const texts = quote.originalMessage.match(/(?<=").*?(?=")/g); // Match texts between quotes
 
-      let messageTextRest = messageText;
+      let messageTextRest = quote.originalMessage;
       if (texts) {
         const filteredTexts = texts.filter(
           (e) => e.trim().length > 0 && e.match(/^\s*-\s*$/) === null
@@ -50,7 +50,7 @@ module.exports = (database, client) => {
           quote.invalid = true;
         }
         quote.content = filteredTexts;
-        messageTextRest = getRest(messageText, filteredTexts);
+        messageTextRest = getRest(quote.originalMessage, filteredTexts);
       } else quote.invalid = true;
 
       const authorIds = messageTextRest.match(/(?<=<@!?)\d+(?=>)/g);
@@ -79,7 +79,6 @@ module.exports = (database, client) => {
       const createdIn = messageTextRest.match(/(?<=\sin\s)(?!.*\sin\s).*/);
       (createdIn && (quote.createdIn = createdIn[0])) ||
         (quote.createdIn = new Date(quote.createdTimestamp).getFullYear());
-      quote.invalid && (quote.originalMessage = messageText);
 
       sendNude(messageId, quote);
 
