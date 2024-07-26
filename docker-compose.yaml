@@ -1,17 +1,21 @@
 name: quoterer
 services:
   bot:
+    container_name: quoterer-bot
+    build: ./bot
     depends_on:
       - mongo
-    build: ./bot
     restart: unless-stopped
     env_file: ".env"
     environment:
       db_uri: mongodb://${db_user}:${db_password}@mongo:27017/
       bot_id: ${bot_id}
       bot_token: ${bot_token}
+    networks:
+      - quoterer-network
 
   mongo:
+    container_name: quoterer-mongo
     image: mongo
     restart: unless-stopped
     env_file: ".env"
@@ -20,9 +24,14 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${db_password}
     volumes:
       - "./db/data:/data/db"
+    networks:
+      - quoterer-network
 
   mongo-express:
+    container_name: quoterer-mongo-express
     image: mongo-express
+    depends_on:
+    - mongo
     restart: unless-stopped
     ports:
       - 8081:8081
@@ -34,3 +43,9 @@ services:
       ME_CONFIG_BASICAUTH_USERNAME: ${db_interface_user}
       ME_CONFIG_BASICAUTH_PASSWORD: ${db_interface_password}
       ME_CONFIG_BASICAUTH: true
+    networks:
+      - quoterer-network
+      
+networks:
+  quoterer-network:
+    driver: bridge
