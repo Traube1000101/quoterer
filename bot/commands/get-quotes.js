@@ -73,7 +73,7 @@ module.exports = (database, client) => {
           quote.invalid = true;
         }
       }
-      const createdIn = messageTextRest.match(/(?<=\sin\s).*/);
+      const createdIn = messageTextRest.match(/(?<=\sin\s)(?!.*\sin\s).*/);
       (createdIn && (quote.createdIn = createdIn[0])) ||
         (quote.createdIn = new Date(quote.createdTimestamp).getFullYear());
       quote.invalid && (quote.originalMessage = messageText);
