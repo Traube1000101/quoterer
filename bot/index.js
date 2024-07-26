@@ -46,9 +46,9 @@ client.on("ready", () => {
     client.user.setActivity(activity, {
       type: 4,
     });
-  const setRandomQuote = async () => {
+  const setRandomQuote = async (tries) => {
     getRandomQuote().then(async (quote) => {
-      if (quote) {
+      if (quote && !quote.invalid) {
         const authors = await Promise.all(
           quote.authorIds.map(async (authorId) => await getUserById(authorId))
         );
@@ -60,12 +60,17 @@ client.on("ready", () => {
           return;
         }
       }
-      setActivity("\u{1F4DC} Fishing for quotes");
+      if (tries > 5) {
+        setActivity("\u{1F4DC} Fishing for quotes");
+      } else {
+        setRandomQuote((tries ?? 0) + 1);
+      }
     });
   };
 
   setRandomQuote();
-  setInterval(setRandomQuote, 300000);
+  // setInterval(setRandomQuote, 300000);
+  setInterval(setRandomQuote, 16000);
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
