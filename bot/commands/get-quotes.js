@@ -58,10 +58,10 @@ module.exports = (database, client) => {
         await updateUsers(authorIds);
         quote.authorIds = authorIds;
       } else {
-        let byString = messageTextRest.match(/(?<=by\s).*(?=\sin)/); // Match string between by & in
+        let byString = messageTextRest.match(/(?<=by\s+)(\S.*\S)(?=\s+in)/); // Match string between by & in
         if (byString) {
           byString = byString[0];
-          for (const authorName of byString.split(", ")) {
+          for (const authorName of byString.split(/\s*,\s*/)) {
             let author = await getUserByName(authorName);
             if (author === false) {
               author = {
