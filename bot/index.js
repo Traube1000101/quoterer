@@ -5,7 +5,7 @@ const { MongoClient } = require("mongodb");
 
 const uri = process.env.db_uri;
 const dbClient = new MongoClient(uri);
-const database = dbClient.db("quote-gatherer");
+const database = dbClient.db("quoterer");
 const workingSir = process.cwd();
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
