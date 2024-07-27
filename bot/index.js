@@ -69,8 +69,7 @@ client.on("ready", () => {
   };
 
   setRandomQuote();
-  // setInterval(setRandomQuote, 300000);
-  setInterval(setRandomQuote, 16000);
+  setInterval(setRandomQuote, 300000);
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
