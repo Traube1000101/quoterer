@@ -50,7 +50,7 @@ namespace_uuid=
 - Fill in the values. The namespace uuid must be a valid UUIDV4, create one e.g. with an [online generator](https://www.uuidgenerator.net/version4).
 
 ## Usage
-- Deploy the commands to you discord app
+- ~~Deploy the commands to your discord app~~ There's currently an issue regarding this, commands can't be deployed!
 ```
 (cd bot; npm run deploy)
 ```  
@@ -62,3 +62,8 @@ sudo docker compose up -d
 ```
 localhost:8081
 ```
+## Disclaimer
+The bot is made for a specific style of quotes, this cannot be changed from within Discord, feel free to change it in source though.  
+### Example:
+
+<img width="50%" alt="Example Quote" src="./assets/example_quote.png">
