@@ -35,7 +35,7 @@ module.exports = (database, client) => {
     const authorStr = interaction.options.getString("author");
     const authorIds = authorStr.match(/(?<=<@).*?(?=>)/g);
     if (!authorIds) throw new Error("No author defined.");
-    const authors = updateUsers(authorIds);
+    const authors = await updateUsers(authorIds);
     quote.authorIds = authorIds;
 
     const quoteString = `"${quote.content.join('" "')}" by ${authors
