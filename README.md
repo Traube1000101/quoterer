@@ -20,7 +20,7 @@
   &nbsp;
   <img height="22px" alt="MongoDB" src="https://img.shields.io/badge/MongoDB-%2347A248?style=flat&logo=mongodb&logoColor=white">
 </div>
-Quoterer is a Discord bot that sends quotes into designated channels and is able to collect and store them in a MongoDB database. A website is in development which displays the quotes in real-time. Future updates may include voting and commenting functionalities for the website.
+A Discord bot which sends quotes into designated channels, collects and stores them in a MongoDB database. A website is in development which displays the quotes in real-time. Future updates may include voting and commenting functionalities for the website.
 
 ## Prerequisites
 
