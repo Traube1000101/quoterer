@@ -6,7 +6,6 @@ const {
 } = require("discord.js");
 
 module.exports = (database) => {
-  const { setChannel } = require(`${workingSir}/modules/db.js`)(database);
   return {
     data: new SlashCommandBuilder()
       .setName("set-channel")
@@ -21,6 +20,7 @@ module.exports = (database) => {
           .setRequired(true)
       ),
     async execute(interaction) {
+      const { setChannel } = require(`${workingSir}/modules/db.js`)(database);
       const { id, name } = interaction.options.getChannel("channel");
       const server = {
         name: interaction.guild.name,

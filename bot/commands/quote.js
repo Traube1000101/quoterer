@@ -8,7 +8,8 @@ const {
 const { performance } = require("perf_hooks");
 
 module.exports = (database, client) => {
-  const { sendNude, getQuoteChannel, updateUsers } =
+  if (database != null || client != null)
+    var { sendNude, getQuoteChannel, updateUsers } =
     require(`${workingSir}/modules/db.js`)(database, client);
 
   async function processQuote(channel, interaction) {

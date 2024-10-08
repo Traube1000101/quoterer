@@ -8,7 +8,8 @@ const { performance } = require("perf_hooks");
 const { v5: uuidv5, validate: uuidValidate } = require("uuid");
 
 module.exports = (database, client) => {
-  const { sendNude, getQuoteChannel, updateUsers, pushUser, getUserByName } =
+  if (database != null || client != null)
+    var { sendNude, getQuoteChannel, updateUsers, pushUser, getUserByName } =
     require(`${workingSir}/modules/db.js`)(database, client);
 
   function getRest(string, matches) {
