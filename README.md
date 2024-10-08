@@ -28,7 +28,7 @@ A Discord bot which sends quotes into designated channels, collects and stores t
 - docker & docker compose
 - npm
 
-## Build
+## Preparation
 - Clone the repo
 ```
 git clone git@github.com:Traube1000101/quoterer
@@ -49,19 +49,18 @@ namespace_uuid=
 ```
 - Fill in the values. The namespace uuid must be a valid UUIDV4, create one e.g. with an [online generator](https://www.uuidgenerator.net/version4).
 
-## Usage
-- ~~Deploy the commands to your discord app~~ There's currently an issue regarding this, commands can't be deployed!
+- Deploy the commands to your discord app
 ```
-(cd bot; npm run deploy)
+./deploy-commands.sh
 ```  
+
+## Usage
 - Start the app
 ```
 sudo docker compose up -d
 ```
-- The mongo express interface is reachable at
-```
-localhost:8081
-```
+- The mongo express interface is reachable at [localhost:8081](http://localhost:8081)
+
 ## Disclaimer
 The bot is made for a specific style of quotes, this cannot be changed from within Discord, feel free to change it in source though.  
 ### Example:
