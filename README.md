@@ -9,7 +9,7 @@
         media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)"
         srcset="./assets/title_light.png"
     />
-    <img width="33%" src="./assets/title_light.png"/>
+    <img width="33%" src="./assets/title_dark.png"/>
   </picture>
   <br>
   <img height="22px" alt="Discord" src="https://img.shields.io/badge/Discord-%235865F2?style=flat&logo=discord&logoColor=white">
