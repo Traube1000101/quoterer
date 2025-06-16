@@ -1,6 +1,6 @@
 FROM node:lts-alpine
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 WORKDIR /bot
 
@@ -11,4 +11,4 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 
 COPY . .
 
-CMD npm start
+CMD ["npm", "start"]
