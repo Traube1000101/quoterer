@@ -61,6 +61,9 @@ module.exports = (database) => {
           },
         },
         {
+          $sort: { createdTimestamp: -1 }
+        },        
+        {
           $project: {
             _id: 0,
             serverId: 1,
