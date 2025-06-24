@@ -110,3 +110,6 @@ process.on("SIGINT", async () => {
   });
   process.exit();
 });
+
+require(`${workingSir}/modules/api.js`)(database);
+
