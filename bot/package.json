@@ -18,6 +18,7 @@
   "license": "ISC",
   "description": "A Discord Bot which sends quotes in a guild and stores them in a database.",
   "dependencies": {
+    "axios": "^1.10.0",
     "discord.js": "^14.14.1",
     "dotenv": "^16.4.5",
     "express": "^5.1.0",

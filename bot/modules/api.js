@@ -1,5 +1,6 @@
 const express = require("express");
 const NodeCache = require("node-cache");
+const axios = require('axios');
 
 const cache = new NodeCache({ stdTTL: 60 });
 
@@ -74,10 +75,34 @@ module.exports = (database) => {
         },
       ];
 
-      quotes = await database
+      const rawQuotes = await database
         .collection("quotes")
         .aggregate(pipeline)
         .toArray();
+
+      quotes = await Promise.all(
+        rawQuotes.map(async (quote) => {
+          const authors = await Promise.all(
+            quote.authors.map(async (author) => ({
+              ...author,
+              avatar: author.avatar ? await urlToBase64(author.avatar) : null,
+            }))
+          );
+
+          const publisher = {
+            ...quote.publisher,
+            avatar: quote.publisher?.avatar
+              ? await urlToBase64(quote.publisher.avatar)
+              : null,
+          };
+
+          return {
+            ...quote,
+            authors: authors,
+            publisher: publisher,
+          };
+        })
+      );
 
       cache.set("quotes", quotes);
 
@@ -90,3 +115,15 @@ module.exports = (database) => {
   const port = process.env.api_port || 8080;
   app.listen(port, () => console.log(`API running on port ${port}`));
 };
+
+async function urlToBase64(url) {
+  try {
+    const response = await axios.get(url, { responseType: "arraybuffer" });
+    const base64 = Buffer.from(response.data).toString("base64");
+    const mimeType = response.headers["content-type"];
+    return `data:${mimeType};base64,${base64}`;
+  } catch (error) {
+    console.error(`Failed to convert ${url} to Base64:`, error.message);
+    return null;
+  }
+}
