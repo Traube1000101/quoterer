@@ -1,6 +1,6 @@
 const express = require("express");
 const NodeCache = require("node-cache");
-const axios = require('axios');
+const axios = require("axios");
 
 const cache = new NodeCache({ stdTTL: 60 });
 
