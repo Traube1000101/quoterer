@@ -30,5 +30,8 @@
 **/values.dev.yaml
 **/build
 **/dist
+**/.prettierrc
+db
+assets
 LICENSE
 README.md

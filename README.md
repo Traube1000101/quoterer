@@ -51,7 +51,8 @@ namespace_uuid=
 
 - Deploy the commands to your discord app
 ```
-./deploy-commands.sh
+npm install
+npm run deploy
 ```  
 
 ## Usage
