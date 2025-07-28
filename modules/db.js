@@ -37,12 +37,12 @@ module.exports = (database, client) => {
     if (!dcUser) {
       return { _id: userId, invalid: true };
     }
-    const { displayName, username } = dcUser;
+    const { displayName, username, avatarURL } = dcUser;
     return {
       _id: userId,
       name: displayName,
       username: username,
-      avatar: dcUser.avatarURL(),
+      avatar: avatarURL(),
     };
   }
 
