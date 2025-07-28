@@ -12,6 +12,7 @@ services:
       db_uri: mongodb://${db_user}:${db_password}@mongo:27017/
       bot_id: ${bot_id}
       bot_token: ${bot_token}
+      salt: ${salt}
     networks:
       - quoterer-network
 

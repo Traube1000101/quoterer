@@ -1,10 +1,20 @@
 const express = require("express");
 const NodeCache = require("node-cache");
 const axios = require("axios");
-
-const cache = new NodeCache({ stdTTL: 60 });
+const argon2 = require("argon2");
 
 module.exports = (database) => {
+  const cache = new NodeCache({ stdTTL: 60 });
+
+  const salt = Buffer.from(process.env.salt, "base64");
+  const hash = async (i) => {
+    const rawHash = await argon2.hash(i, {
+      raw: true,
+      salt,
+    });
+    return rawHash.toString("base64");
+  };
+
   const app = express();
   app.use(express.json());
 
@@ -16,61 +26,16 @@ module.exports = (database) => {
 
       const pipeline = [
         {
-          $lookup: {
-            from: "users",
-            localField: "authorIds",
-            foreignField: "_id",
-            as: "authors",
-          },
-        },
-        {
-          $addFields: {
-            authors: {
-              $map: {
-                input: "$authors",
-                as: "author",
-                in: {
-                  avatar: "$$author.avatar",
-                  name: "$$author.name",
-                  username: "$$author.username",
-                },
-              },
-            },
-          },
-        },
-        {
-          $lookup: {
-            from: "users",
-            localField: "publisherId",
-            foreignField: "_id",
-            as: "publisherInfo",
-          },
-        },
-        {
-          $addFields: {
-            publisherInfo: {
-              $map: {
-                input: "$publisherInfo",
-                as: "pub",
-                in: {
-                  avatar: "$$pub.avatar",
-                  name: "$$pub.name",
-                  username: "$$pub.username",
-                },
-              },
-            },
-          },
-        },
-        {
           $sort: { createdTimestamp: -1 },
         },
         {
           $project: {
             _id: 0,
             content: 1,
-            authors: 1,
+            authorIds: 1,
             createdTimestamp: 1,
-            publisher: { $first: "$publisherInfo" },
+            createdIn: 1,
+            publisherId: 1,
           },
         },
       ];
@@ -82,24 +47,16 @@ module.exports = (database) => {
 
       quotes = await Promise.all(
         rawQuotes.map(async (quote) => {
-          const authors = await Promise.all(
-            quote.authors.map(async (author) => ({
-              ...author,
-              avatar: author.avatar ? await urlToBase64(author.avatar) : null,
-            }))
+          const authorIds = await Promise.all(
+            quote.authorIds.map(async (authorId) => await hash(authorId))
           );
 
-          const publisher = {
-            ...quote.publisher,
-            avatar: quote.publisher?.avatar
-              ? await urlToBase64(quote.publisher.avatar)
-              : null,
-          };
+          const publisherId = await hash(quote.publisherId);
 
           return {
             ...quote,
-            authors: authors,
-            publisher: publisher,
+            authorIds,
+            publisherId,
           };
         })
       );
@@ -107,6 +64,35 @@ module.exports = (database) => {
       cache.set("quotes", quotes);
 
       respond(quotes);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get("/api/users", async (req, res) => {
+    try {
+      let users = cache.get("users");
+      const respond = (content) => res.json(content);
+      if (users) return respond(users);
+
+      const rawUsers = await database.collection("users").find({},{}).toArray();
+
+      users = await Promise.all(
+        rawUsers.map(async (user) => {
+          const _id = await hash(user._id)
+          return {
+            ...user,
+            avatar: user.avatar
+              ? await urlToBase64(user.avatar)
+              : undefined,
+            _id,
+          };
+        })
+      );
+
+      cache.set("users", users);
+
+      respond(users);
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
