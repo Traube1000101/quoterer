@@ -1,3 +1,4 @@
 node_modules
-.env*
+.env
 db
+*.tar.[gx]z
