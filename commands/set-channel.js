@@ -1,4 +1,4 @@
-const workingSir = process.cwd();
+const workingDir = process.cwd();
 const {
   SlashCommandBuilder,
   ChannelType,
@@ -20,7 +20,7 @@ module.exports = (database) => {
           .setRequired(true)
       ),
     async execute(interaction) {
-      const { setChannel } = require(`${workingSir}/modules/db.js`)(database);
+      const { setChannel } = require(`${workingDir}/modules/db.js`)(database);
       const { id, name } = interaction.options.getChannel("channel");
       const server = {
         name: interaction.guild.name,

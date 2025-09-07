@@ -2,8 +2,7 @@ module.exports = (database, client) => {
   const serversCollection = database.collection("servers");
   const usersCollection = database.collection("users");
 
-  // Send Noteworthy Unified Discord Entry
-  function sendNude(messageId, quote) {
+  function saveQuote(messageId, quote) {
     const messageIdInt = parseInt(messageId);
     try {
       const quotesCollection = database.collection("quotes");
@@ -129,7 +128,7 @@ module.exports = (database, client) => {
   }
 
   return {
-    sendNude,
+    saveQuote,
     getQuoteChannel,
     setChannel,
     updateUsers,

@@ -1,4 +1,4 @@
-const workingSir = process.cwd();
+const workingDir = process.cwd();
 const {
   SlashCommandBuilder,
   PermissionFlagsBits,
@@ -9,8 +9,8 @@ const { performance } = require("perf_hooks");
 
 module.exports = (database, client) => {
   if (database != null || client != null)
-    var { sendNude, getQuoteChannel, updateUsers } =
-    require(`${workingSir}/modules/db.js`)(database, client);
+    var { saveQuote, getQuoteChannel, updateUsers } =
+    require(`${workingDir}/modules/db.js`)(database, client);
 
   async function processQuote(channel, interaction) {
     const createdDate = new Date();
@@ -45,7 +45,7 @@ module.exports = (database, client) => {
 
     const { id } = await channel.send(quoteString);
 
-    sendNude(id, quote);
+    saveQuote(id, quote);
 
     interaction.reply({
       content: `Quote created in ${channel.toString()}.`,
