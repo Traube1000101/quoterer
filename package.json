@@ -1,51 +1,52 @@
 {
-  "name": "quoterer-bot",
-  "version": "2.0.1",
-  "type": "module",
-  "main": "dist/index.mjs",
-  "scripts": {
-    "dev": "nodemon --watch 'src' -e 'js,ts' --exec 'tsdown && node dist/index.mjs'",
-    "start": "node dist/index.mjs",
-    "build": "tsdown --minify",
-    "deploy-to-guild": "tsdown scripts/deploy-to-guild.ts --out-dir './dist/scripts/' --no-clean && node dist/scripts/deploy-to-guild.mjs",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
-  },
-  "keywords": [
-    "discord",
-    "bot",
-    "quote",
-    "app",
-    "db",
-    "database"
-  ],
-  "contributors": [
-    {
-      "name": "Traube1000101"
+    "name": "quoterer-bot",
+    "version": "2.0.1",
+    "type": "module",
+    "main": "dist/index.mjs",
+    "scripts": {
+        "dev": "nodemon --watch 'src' -e 'js,ts' --exec 'tsdown && node dist/index.mjs'",
+        "start": "node dist/index.mjs",
+        "build": "tsdown --minify",
+        "deploy-to-guild": "tsdown scripts/deploy-to-guild.ts --out-dir './dist/scripts/' --no-clean && node dist/scripts/deploy-to-guild.mjs",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix"
     },
-    {
-      "name": "Aseraphyss"
+    "keywords": [
+        "discord",
+        "bot",
+        "quote",
+        "app",
+        "db",
+        "database"
+    ],
+    "contributors": [
+        {
+            "name": "Traube1000101"
+        },
+        {
+            "name": "Aseraphyss"
+        }
+    ],
+    "license": "ISC",
+    "description": "A Discord Bot which sends quotes in a guild and stores them in a database.",
+    "dependencies": {
+        "argon2": "^0.43.1",
+        "axios": "^1.13.6",
+        "discord.js": "^14.25.1",
+        "dotenv": "^16.6.1",
+        "express": "^5.2.1",
+        "mongodb": "^6.21.0",
+        "node-cache": "^5.1.2",
+        "uuid": "^10.0.0"
+    },
+    "devDependencies": {
+        "@eslint/js": "^10.0.1",
+        "@types/express": "^5.0.6",
+        "eslint": "^10.0.3",
+        "nodemon": "^3.1.14",
+        "prettier": "^3.8.1",
+        "tsdown": "^0.21.0",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.56.1"
     }
-  ],
-  "license": "ISC",
-  "description": "A Discord Bot which sends quotes in a guild and stores them in a database.",
-  "dependencies": {
-    "argon2": "^0.43.1",
-    "axios": "^1.13.6",
-    "discord.js": "^14.25.1",
-    "dotenv": "^16.6.1",
-    "express": "^5.2.1",
-    "mongodb": "^6.21.0",
-    "node-cache": "^5.1.2",
-    "uuid": "^10.0.0"
-  },
-  "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "@types/express": "^5.0.6",
-    "eslint": "^10.0.3",
-    "nodemon": "^3.1.14",
-    "tsdown": "^0.21.0",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.56.1"
-  }
 }

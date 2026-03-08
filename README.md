@@ -29,15 +29,21 @@ A Discord bot which sends quotes into designated channels, collects and stores t
 - npm
 
 ## Preparation
+
 - Clone the repo
+
 ```
 git clone git@github.com:Traube1000101/quoterer
 ```
+
 - Change into the directory
+
 ```
 cd quoterer
 ```
+
 - Create a file named `.env` & fill in the values.
+
 ```
 db_user=
 db_password=
@@ -47,23 +53,30 @@ bot_id=
 bot_token=
 salt=
 ```
+
 - The salt must be a random cryptographically secure base64 string, create one with "openssl rand -base64 16"
 
 - Deploy the commands to your discord app
+
 ```
 npm install
 npm run deploy
-```  
+```
 
 ## Usage
+
 - Start the app
+
 ```
 sudo docker compose up -d
 ```
+
 - The mongo express interface is reachable at [localhost:8081](http://localhost:8081)
 
 ## Disclaimer
-The bot is made for a specific style of quotes, this cannot be changed from within Discord, feel free to change it in source though.  
+
+The bot is made for a specific style of quotes, this cannot be changed from within Discord, feel free to change it in source though.
+
 ### Example:
 
 <img width="50%" alt="Example Quote" src="./assets/example_quote.png">
