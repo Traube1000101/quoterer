@@ -68,12 +68,20 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         withResponse: true,
     });
 
-    const collector =
-        response.resource?.message!.createMessageComponentCollector({
+    if (response.resource === null || response.resource.message === null) {
+        return interaction.editReply({
+            content: "Failed to send confirmation message.",
+            components: [],
+        });
+    }
+
+    const collector = response.resource.message.createMessageComponentCollector(
+        {
             filter: (i) => i.user.id === interaction.user.id,
             time: 300_000,
             max: 1,
-        })!;
+        }
+    );
 
     activeCollectors.set(sessionKey, {
         interaction,

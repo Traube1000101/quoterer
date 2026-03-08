@@ -33,9 +33,9 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     const author = interaction.user;
 
     const response = await interaction.reply({
-        content: `Are you sure you want to quote the following message?\n-# \"${
+        content: `Are you sure you want to quote the following message?\n-# "${
             message
-        }\" - <@${author.id}>`,
+        }" - <@${author.id}>`,
         components: [createSubmitCancelButtonRow()],
         flags: MessageFlags.Ephemeral,
         withResponse: true,
@@ -73,7 +73,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
             content: "Your message has been quoted!",
             components: [],
         });
-    } catch (error) {
+    } catch {
         await interaction.editReply({
             content: "Confirmation not received within 1 minute, cancelling...",
             components: [],

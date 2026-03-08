@@ -28,8 +28,6 @@ services:
         networks:
             - quoterer-network
 
-
-
 volumes:
     postgres-data:
 
