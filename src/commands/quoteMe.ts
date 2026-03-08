@@ -4,13 +4,10 @@ import {
     PermissionFlagsBits,
     InteractionContextType,
     MessageFlags,
-    ButtonBuilder,
-    ButtonStyle,
-    ActionRowBuilder,
-    MessageActionRowComponentBuilder,
 } from "discord.js";
 
 import { createQuote } from "@/modules/db_utils";
+import { createSubmitCancelButtonRow } from "@/modules/ui";
 
 export const data = new SlashCommandBuilder()
     .setName("quote-me")
@@ -35,24 +32,11 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     const message = interaction.options.getString("message", true);
     const author = interaction.user;
 
-    const confirm = new ButtonBuilder()
-        .setCustomId("confirm")
-        .setLabel("Confirm")
-        .setStyle(ButtonStyle.Danger);
-    const cancel = new ButtonBuilder()
-        .setCustomId("cancel")
-        .setLabel("Cancel")
-        .setStyle(ButtonStyle.Secondary);
-    const row =
-        new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
-            cancel,
-            confirm
-        );
     const response = await interaction.reply({
         content: `Are you sure you want to quote the following message?\n-# \"${
             message
         }\" - <@${author.id}>`,
-        components: [row],
+        components: [createSubmitCancelButtonRow()],
         flags: MessageFlags.Ephemeral,
         withResponse: true,
     });
@@ -80,8 +64,8 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
         await createQuote(
             interaction.guildId,
-            author.id,
-            [{ content: message, authorId: author.id }],
+            author,
+            [{ text: message, author: author }],
             message
         );
 

@@ -8,10 +8,6 @@ export default defineConfig(
     {
         rules: {
             "@typescript-eslint/consistent-type-definitions": ["error", "type"],
-            "@typescript-eslint/no-unsed-vars": [
-                "error",
-                { caughtErrors: "none" },
-            ],
         },
     },
     eslint.configs.recommended,

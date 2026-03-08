@@ -4,20 +4,14 @@ import {
     PermissionFlagsBits,
     InteractionContextType,
     MessageFlags,
-    ButtonBuilder,
-    ButtonStyle,
-    ActionRowBuilder,
-    MessageActionRowComponentBuilder,
 } from "discord.js";
 
-import { createQuote } from "@/modules/db_utils";
+import { createQuote, type PassageEntry } from "@/modules/db_utils";
+import { createSubmitCancelButtonRow, parsePassages } from "@/modules/ui";
 
-type PassageEntry = { content: string; authorId: string };
-
-// "guildId-userId" -> accumulated passages
+// Storage (in memory) for previous interactions / passages
+// keys: "guildId-userId"
 const sessions = new Map<string, PassageEntry[]>();
-
-// "guildId-userId" -> previous interaction + stop handle for its collector
 const activeCollectors = new Map<
     string,
     { interaction: ChatInputCommandInteraction; stop: () => void }
@@ -64,49 +58,22 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
     // Append new passage to the session (or start a fresh one)
     const passages = sessions.get(sessionKey) ?? [];
-    passages.push({ content: message, authorId: passageAuthor.id });
+    passages.push({ text: message, author: passageAuthor });
     sessions.set(sessionKey, passages);
 
-    const preview = passages
-        .map((p, i) => `-# [${i + 1}] "${p.content}" - <@${p.authorId}>`)
-        .join("\n");
-
-    const submit = new ButtonBuilder()
-        .setCustomId("submit")
-        .setLabel("Submit Quote")
-        .setStyle(ButtonStyle.Success);
-    const cancel = new ButtonBuilder()
-        .setCustomId("cancel")
-        .setLabel("Cancel")
-        .setStyle(ButtonStyle.Danger);
-    const row =
-        new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
-            cancel,
-            submit
-        );
-
     const response = await interaction.reply({
-        content: `**Quote so far** - run \`/quote-much\` again to add another passage:\n${preview}`,
-        components: [row],
+        content: `**Quote so far** - run \`/quote-much\` again to add another passage:\n${parsePassages(passages)}`,
+        components: [createSubmitCancelButtonRow()],
         flags: MessageFlags.Ephemeral,
         withResponse: true,
     });
 
-    if (response.resource === null || response.resource.message === null) {
-        sessions.delete(sessionKey);
-        return interaction.editReply({
-            content: "Failed to send confirmation message.",
-            components: [],
-        });
-    }
-
-    const collector = response.resource.message.createMessageComponentCollector(
-        {
+    const collector =
+        response.resource?.message!.createMessageComponentCollector({
             filter: (i) => i.user.id === interaction.user.id,
-            time: 300_000, // 5 minutes to decide
+            time: 300_000,
             max: 1,
-        }
-    );
+        })!;
 
     activeCollectors.set(sessionKey, {
         interaction,
@@ -115,9 +82,6 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
     collector.on("collect", async (confirmation) => {
         activeCollectors.delete(sessionKey);
-        // Read from the map at decision time so all passages accumulated
-        // across multiple invocations are included.
-        const finalPassages = sessions.get(sessionKey) ?? passages;
 
         if (confirmation.customId === "cancel") {
             sessions.delete(sessionKey);
@@ -128,12 +92,13 @@ export async function execute(interaction: ChatInputCommandInteraction) {
             return;
         }
 
+        const finalPassages = sessions.get(sessionKey) ?? passages;
         sessions.delete(sessionKey);
         await createQuote(
             interaction.guildId,
-            interaction.user.id,
+            interaction.user,
             finalPassages,
-            finalPassages.map((p) => p.content).join(" / ")
+            parsePassages(finalPassages)
         );
         await confirmation.update({
             content: `Quote saved with ${finalPassages.length} passage(s)!`,

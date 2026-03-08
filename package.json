@@ -8,8 +8,10 @@
         "start": "node dist/index.mjs",
         "build": "tsdown --minify",
         "deploy": "tsdown scripts/deploy-to-guild.ts --out-dir './dist/scripts/' --no-clean && node dist/scripts/deploy-to-guild.mjs",
-        "lint": "eslint .",
-        "lint:fix": "eslint . --fix"
+        "check:lint": "eslint .",
+        "check:style": "prettier --check .",
+        "check": "npm run check:lint && npm run check:style",
+        "format": "eslint --fix . && prettier --write ."
     },
     "keywords": [
         "discord",
