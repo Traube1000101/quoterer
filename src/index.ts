@@ -16,7 +16,7 @@ client.on(Events.GuildCreate, async (guild) => {
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
-    if (!interaction.isCommand()) return;
+    if (!interaction.isChatInputCommand()) return;
 
     const { commandName } = interaction;
     if (!(commandName in commands)) {

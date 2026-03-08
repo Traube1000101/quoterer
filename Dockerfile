@@ -1,14 +1,21 @@
-FROM node:lts-alpine
+FROM node:lts-alpine as builder
 
 ENV NODE_ENV=production
 
 WORKDIR /bot
 
-RUN --mount=type=bind,source=package.json,target=package.json \
-    --mount=type=bind,source=package-lock.json,target=package-lock.json \
-    --mount=type=cache,target=/root/.npm \
-    npm ci --omit=dev
+COPY package.json ./
+COPY tsconfig.json ./
+COPY src ./src
 
-COPY . .
+RUN npm ci --omit=dev
+RUN npm run build
 
-CMD ["npm", "start"]
+FROM node:lts-alpine
+
+WORKDIR /bot
+
+COPY --from=builder /bot/package.json ./
+COPY --from=builder /bot/dist ./dist
+
+CMD ["npm", "run", "start"]
