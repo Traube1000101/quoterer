@@ -32,11 +32,14 @@ export const data = new SlashCommandBuilder()
     .addUserOption((option) =>
         option
             .setName("author")
-            .setDescription("The user who uttered the passage. (Default: you)")
+            .setDescription("The user who uttered the passage (Default: you)")
             .setRequired(false)
     );
 
-export async function execute(interaction: ChatInputCommandInteraction) {
+export async function execute(
+    interaction: ChatInputCommandInteraction,
+    isPrivate = false
+) {
     if (!interaction.inCachedGuild()) {
         return interaction.reply({
             content: "Guild not found!",
@@ -107,7 +110,8 @@ export async function execute(interaction: ChatInputCommandInteraction) {
             interaction.guildId,
             interaction.user,
             finalPassages,
-            parsePassages(finalPassages)
+            parsePassages(finalPassages),
+            isPrivate
         );
         await confirmation.update({
             content: `Quote saved with ${finalPassages.length} passage(s)!`,

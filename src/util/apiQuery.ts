@@ -56,12 +56,18 @@ export async function createQuote(
     guildId: string,
     publisher: AuthorEntry,
     passages: PassageEntry[],
-    sourceMessage: string
+    sourceMessage: string,
+    isPrivate = false
 ) {
     const authors = passages.map((p) => p.author);
     authors.push(publisher);
     await addAuthors(authors);
-    const quote = await addQuote(guildId, publisher.id, sourceMessage);
+    const quote = await addQuote(
+        guildId,
+        publisher.id,
+        sourceMessage,
+        isPrivate
+    );
     await addPassages(passages, quote.createQuote.id);
 }
 
@@ -106,7 +112,8 @@ async function addAuthors(authors: AuthorEntry[]) {
 async function addQuote(
     guildId: string,
     publisherId: string,
-    sourceMessage: string
+    sourceMessage: string,
+    isPrivate = false
 ) {
     const utteredAt = Date.now();
     const mutation = gql`
@@ -115,6 +122,7 @@ async function addQuote(
             $publisherId: ID!
             $sourceMessage: String
             $utteredAt: Long
+            $isPrivate: Boolean
         ) {
             createQuote(
                 input: {
@@ -123,6 +131,7 @@ async function addQuote(
                     sourceMessage: $sourceMessage
                     utteredAt: $utteredAt
                     createdAt: $utteredAt
+                    isPrivate: $isPrivate
                 }
             ) {
                 id
@@ -135,6 +144,7 @@ async function addQuote(
         publisherId,
         sourceMessage,
         utteredAt,
+        isPrivate,
     };
 
     return await client.request(mutation, variables);
