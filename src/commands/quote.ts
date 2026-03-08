@@ -5,20 +5,29 @@ import {
     InteractionContextType,
     MessageFlags,
 } from "discord.js";
-
-import { createQuote } from "@/modules/db_utils";
-import { createSubmitCancelButtonRow } from "@/modules/ui";
+import { config } from "@/util/config";
+import { createQuote } from "@/util/apiQuery";
+import {
+    catchInteractionCollectorError,
+    createSubmitCancelButtonRow,
+} from "@/util/UI";
 
 export const data = new SlashCommandBuilder()
-    .setName("quote-me")
-    .setDescription("Quotes your message")
+    .setName("quote")
+    .setDescription("Quote a single utterance")
     .setContexts(InteractionContextType.Guild)
     .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages)
     .addStringOption((option) =>
         option
             .setName("message")
-            .setDescription("Your message to quote")
+            .setDescription("Single quote")
             .setRequired(true)
+    )
+    .addUserOption((option) =>
+        option
+            .setName("author")
+            .setDescription("The user who uttered the quote. (Default: you)")
+            .setRequired(false)
     );
 
 export async function execute(interaction: ChatInputCommandInteraction) {
@@ -30,7 +39,8 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     }
 
     const message = interaction.options.getString("message", true);
-    const author = interaction.user;
+    const authorOption = interaction.options.getUser("author");
+    const author = authorOption ?? interaction.user;
 
     const response = await interaction.reply({
         content: `Are you sure you want to quote the following message?\n-# "${
@@ -51,7 +61,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         const confirmation =
             await response.resource.message.awaitMessageComponent({
                 filter: (i) => i.user.id === author.id,
-                time: 60_000,
+                time: config.MAX_RESPONSE_TIME,
             });
 
         if (confirmation.customId === "cancel") {
@@ -73,10 +83,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
             content: "Your message has been quoted!",
             components: [],
         });
-    } catch {
-        await interaction.editReply({
-            content: "Confirmation not received within 1 minute, cancelling...",
-            components: [],
-        });
+    } catch (error) {
+        await catchInteractionCollectorError(error, interaction);
     }
 }

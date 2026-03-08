@@ -6,8 +6,9 @@ import {
     MessageFlags,
 } from "discord.js";
 
-import { createQuote, type PassageEntry } from "@/modules/db_utils";
-import { createSubmitCancelButtonRow, parsePassages } from "@/modules/ui";
+import { config } from "@/util/config";
+import { createQuote, type PassageEntry } from "@/util/apiQuery";
+import { createSubmitCancelButtonRow, parsePassages } from "@/util/UI";
 
 // Storage (in memory) for previous interactions / passages
 // keys: "guildId-userId"
@@ -19,7 +20,7 @@ const activeCollectors = new Map<
 
 export const data = new SlashCommandBuilder()
     .setName("quote-much")
-    .setDescription("Quotes conversation; passage by passage")
+    .setDescription("Quote a conversation; passage by passage")
     .setContexts(InteractionContextType.Guild)
     .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages)
     .addStringOption((option) =>
@@ -31,7 +32,7 @@ export const data = new SlashCommandBuilder()
     .addUserOption((option) =>
         option
             .setName("author")
-            .setDescription("The user who uttered the passage")
+            .setDescription("The user who uttered the passage. (Default: you)")
             .setRequired(false)
     );
 
@@ -78,7 +79,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     const collector = response.resource.message.createMessageComponentCollector(
         {
             filter: (i) => i.user.id === interaction.user.id,
-            time: 300_000,
+            time: config.MAX_RESPONSE_TIME,
             max: 1,
         }
     );
