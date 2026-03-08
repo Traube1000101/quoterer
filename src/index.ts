@@ -25,10 +25,23 @@ client.on(Events.InteractionCreate, async (interaction) => {
             flags: MessageFlags.Ephemeral,
         });
     }
-    const command = commands[commandName];
+    const command = commands[commandName as keyof typeof commands];
 
-    if (commands[commandName as keyof typeof commands]) {
-        commands[commandName as keyof typeof commands].execute(interaction);
+    try {
+        await command.execute(interaction);
+    } catch (error) {
+        console.error(error);
+        if (interaction.replied || interaction.deferred) {
+            await interaction.followUp({
+                content: "There was an error while executing this command!",
+                flags: MessageFlags.Ephemeral,
+            });
+        } else {
+            await interaction.reply({
+                content: "There was an error while executing this command!",
+                flags: MessageFlags.Ephemeral,
+            });
+        }
     }
 });
 

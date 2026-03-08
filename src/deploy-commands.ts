@@ -16,15 +16,15 @@ export async function deployCommands({ guildId }: DeployCommandsProps) {
             `Started refreshing ${commandsData.length} application (/) commands.`
         );
 
-        const data = await rest.put(
+        const data = (await rest.put(
             Routes.applicationGuildCommands(config.DISCORD_CLIENT_ID, guildId),
             {
                 body: commandsData,
             }
-        );
+        )) as unknown[];
 
         console.log(
-            `Successfully reloaded ${data?.length} application (/) commands.`
+            `Successfully reloaded ${data.length} application (/) commands.`
         );
     } catch (error) {
         console.error(error);
