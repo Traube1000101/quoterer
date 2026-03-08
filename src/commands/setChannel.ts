@@ -4,6 +4,7 @@ import {
     PermissionFlagsBits,
     InteractionContextType,
     ChannelType,
+    MessageFlags,
 } from "discord.js";
 import { initGuild as initGuildQuotes } from "@/modules/db_utils";
 
@@ -21,19 +22,18 @@ export const data = new SlashCommandBuilder()
     );
 
 export async function execute(interaction: ChatInputCommandInteraction) {
-    const channel = interaction.options.getChannel("channel", true);
-
-    if (interaction.guild === null) {
+    if (!interaction.inCachedGuild()) {
         return interaction.reply({
             content: "Guild not found!",
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         });
     }
+
+    const channel = interaction.options.getChannel("channel", true);
 
     await initGuildQuotes(interaction.guild, channel);
 
     await interaction.reply({
         content: `Successfully set the quote channel to "${channel.name}".`,
-        ephemeral: true,
     });
 }

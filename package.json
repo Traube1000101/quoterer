@@ -7,7 +7,7 @@
         "dev": "nodemon --watch 'src' -e 'js,ts' --exec 'tsdown && node dist/index.mjs'",
         "start": "node dist/index.mjs",
         "build": "tsdown --minify",
-        "deploy-to-guild": "tsdown scripts/deploy-to-guild.ts --out-dir './dist/scripts/' --no-clean && node dist/scripts/deploy-to-guild.mjs",
+        "deploy": "tsdown scripts/deploy-to-guild.ts --out-dir './dist/scripts/' --no-clean && node dist/scripts/deploy-to-guild.mjs",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix"
     },
