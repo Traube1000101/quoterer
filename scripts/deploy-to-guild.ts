@@ -1,6 +1,7 @@
+import "dotenv/config";
 import { deployCommands } from "../src/deploy-commands";
 
-const guildId = process.argv[2];
+const guildId = process.argv[2] ?? process.env.GUILD_ID;
 
 if (!guildId) {
     console.error("Please provide a guild ID as the first argument.");
