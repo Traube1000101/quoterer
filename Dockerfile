@@ -1,21 +1,20 @@
-FROM node:lts-alpine as builder
+FROM node:lts-alpine AS builder
 
-ENV NODE_ENV=production
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /bot
 
-COPY package.json ./
-COPY tsconfig.json ./
+COPY package.json pnpm-lock.yaml tsconfig.json ./
 COPY src ./src
+COPY scripts ./scripts
 
-RUN npm ci --omit=dev
-RUN npm run build
+RUN pnpm install --frozen-lockfile
+RUN pnpm run build
 
 FROM node:lts-alpine
 
 WORKDIR /bot
 
-COPY --from=builder /bot/package.json ./
 COPY --from=builder /bot/dist ./dist
 
-CMD ["npm", "run", "start"]
+CMD ["node", "dist/index.cjs"]

@@ -1,0 +1,48 @@
+name: quoterer
+services:
+    bot:
+        build: .
+        depends_on:
+            - api
+        environment:
+            DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID}
+            DISCORD_TOKEN: ${DISCORD_TOKEN}
+            QUOTERER_GRAPHQL_ENDPOINT: http://api:8080/graphql
+            MAX_RESPONSE_TIME: 5000
+        networks:
+            - quoterer-network
+    api:
+        build:
+            context: git@zetacron.de:tyrem-envalura/quoterer-api.git#feat-postgres
+            ssh:
+                - default
+        depends_on:
+            - postgres
+        ports:
+            - "8080:8080"
+        environment:
+            SPRING_PROFILES_ACTIVE: dev
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_HOST: postgres
+        networks:
+            - quoterer-network
+
+    postgres:
+        image: postgres:latest
+        ports:
+            - "5432:5432"
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        networks:
+            - quoterer-network
+        volumes:
+            - postgres-data:/var/lib/postgresql
+
+volumes:
+    postgres-data:
+
+networks:
+    quoterer-network:
+        driver: bridge

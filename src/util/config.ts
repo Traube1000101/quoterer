@@ -13,7 +13,9 @@ if (
     QUOTERER_GRAPHQL_ENDPOINT === undefined ||
     MAX_RESPONSE_TIME === undefined
 )
-    throw new Error("Missing environment variables");
+    throw new Error(
+        "The following environment variables must be set: DISCORD_TOKEN, DISCORD_CLIENT_ID, QUOTERER_GRAPHQL_ENDPOINT, MAX_RESPONSE_TIME"
+    );
 
 export const config = {
     DISCORD_TOKEN,
