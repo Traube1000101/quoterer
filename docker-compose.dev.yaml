@@ -7,8 +7,8 @@ services:
         environment:
             DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID}
             DISCORD_TOKEN: ${DISCORD_TOKEN}
+            MAX_RESPONSE_TIME: ${MAX_RESPONSE_TIME}
             QUOTERER_GRAPHQL_ENDPOINT: http://api:8080/graphql
-            MAX_RESPONSE_TIME: 5000
         networks:
             - quoterer-network
     api:
