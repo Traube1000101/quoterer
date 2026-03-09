@@ -8,6 +8,7 @@ import {
 } from "discord.js";
 import type { PassageEntry } from "./apiQuery";
 import { ClientError } from "graphql-request";
+import { config } from "@/util/config";
 
 export function createSubmitCancelButtonRow() {
     const submit = new ButtonBuilder()
@@ -46,7 +47,7 @@ export async function catchInteractionCollectorError(
         error.code === DiscordjsErrorCodes.InteractionCollectorError
     ) {
         await interaction.editReply({
-            content: "Confirmation not received within 1 minute, cancelling...",
+            content: `Confirmation not received within ${formatDurationMS(config.MAX_RESPONSE_TIME)}, cancelling...`,
             components: [],
         });
         return;
@@ -64,4 +65,11 @@ export async function catchInteractionCollectorError(
         content: "An unknown error occurred. Sry...",
         components: [],
     });
+}
+
+export function formatDurationMS(ms: number) {
+    return new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(
+        ms / 1000,
+        "second"
+    );
 }

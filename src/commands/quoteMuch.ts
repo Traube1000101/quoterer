@@ -8,7 +8,11 @@ import {
 
 import { config } from "@/util/config";
 import { createQuote, type PassageEntry } from "@/util/apiQuery";
-import { createSubmitCancelButtonRow, parsePassages } from "@/util/UI";
+import {
+    createSubmitCancelButtonRow,
+    formatDurationMS,
+    parsePassages,
+} from "@/util/UI";
 
 // Storage (in memory) for previous interactions / passages
 // keys: "guildId-userId"
@@ -124,8 +128,9 @@ export async function execute(
             sessions.delete(sessionKey);
             activeCollectors.delete(sessionKey);
             await interaction.editReply({
-                content:
-                    "Confirmation not received within 5 minutes, session cancelled.",
+                content: `Confirmation not received within ${formatDurationMS(
+                    config.MAX_RESPONSE_TIME
+                )}, session cancelled.`,
                 components: [],
             });
         }
