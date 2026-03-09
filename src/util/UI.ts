@@ -6,7 +6,7 @@ import {
     DiscordjsErrorCodes,
     ChatInputCommandInteraction,
 } from "discord.js";
-import type { PassageEntry } from "./apiQuery";
+import type { PassageEntry, AuthorEntry } from "./writeQuote";
 import { ClientError } from "graphql-request";
 import { config } from "@/util/config";
 
@@ -27,8 +27,14 @@ export function createSubmitCancelButtonRow() {
     return row;
 }
 
-export function parsePassages(passages: PassageEntry[]) {
-    return passages.map((p) => `-# "${p.text}" - <@${p.author.id}>`).join("\n");
+function userID2MentionString(userId: string) {
+    return `<@${userId}>`;
+}
+
+export function formatPassages(passages: PassageEntry[]) {
+    return passages
+        .map((p) => `-# "${p.text}" - ${userID2MentionString(p.author.id)}`)
+        .join("\n");
 }
 
 export async function catchInteractionCollectorError(
@@ -72,4 +78,18 @@ export function formatDurationMS(ms: number) {
         ms / 1000,
         "second"
     );
+}
+
+type QuoteData = {
+    publisher: AuthorEntry;
+    passages: PassageEntry[];
+    isPrivate: boolean;
+};
+export function formatQuote({ publisher, passages, isPrivate }: QuoteData) {
+    const intro = `-# Quote published by ${userID2MentionString(publisher.id)}:`;
+    const passagesText = passages
+        .map((p) => `"${p.text}"\t - ${userID2MentionString(p.author.id)}`)
+        .join("\n");
+    const privacyNote = isPrivate ? "*(This quote is private)*" : "";
+    return `${intro}\n${passagesText}\n\n${privacyNote}`;
 }

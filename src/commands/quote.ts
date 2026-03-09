@@ -6,7 +6,7 @@ import {
     MessageFlags,
 } from "discord.js";
 import { config } from "@/util/config";
-import { createQuote } from "@/util/apiQuery";
+import { applyQuote } from "@/util/writeQuote";
 import {
     catchInteractionCollectorError,
     createSubmitCancelButtonRow,
@@ -75,7 +75,8 @@ export async function execute(
             return;
         }
 
-        await createQuote(
+        await applyQuote(
+            interaction,
             interaction.guildId,
             author,
             [{ text: message, author: author }],

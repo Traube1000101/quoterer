@@ -1,8 +1,26 @@
-import { config } from "@/util/config";
+import type { AuthorEntry, PassageEntry } from "./writeQuote";
 
+import { config } from "@/util/config";
 import { gql, GraphQLClient } from "graphql-request";
 
 const client = new GraphQLClient(config.QUOTERER_GRAPHQL_ENDPOINT);
+
+export async function getGuildChannelId(guildId: string) {
+    const query = gql`
+        query ($guildId: ID!) {
+            guild(id: $guildId) {
+                channelId
+            }
+        }
+    `;
+
+    const variables = { guildId };
+    const response = await client.request<{ guild: { channelId: string } }>(
+        query,
+        variables
+    );
+    return response.guild.channelId;
+}
 
 export async function initGuild(
     guild: {
@@ -42,33 +60,10 @@ export async function initGuild(
         channelName: channel.name,
     };
 
-    return await client.request(mutation, variables);
-}
-
-export type AuthorEntry = {
-    id: string;
-    globalName: string | null;
-    username: string | null;
-    avatarURL: () => string | null;
-};
-export type PassageEntry = { text: string; author: AuthorEntry };
-export async function createQuote(
-    guildId: string,
-    publisher: AuthorEntry,
-    passages: PassageEntry[],
-    sourceMessage: string,
-    isPrivate = false
-) {
-    const authors = passages.map((p) => p.author);
-    authors.push(publisher);
-    await addAuthors(authors);
-    const quote = await addQuote(
-        guildId,
-        publisher.id,
-        sourceMessage,
-        isPrivate
+    return await client.request<{ createGuild: { id: string } }>(
+        mutation,
+        variables
     );
-    await addPassages(passages, quote.createQuote.id);
 }
 
 const filterUniqueAuthor = (
@@ -77,7 +72,7 @@ const filterUniqueAuthor = (
     self: AuthorEntry[]
 ) => index === self.findIndex((b) => b.id === a.id);
 
-async function addAuthors(authors: AuthorEntry[]) {
+export async function addAuthors(authors: AuthorEntry[]) {
     const query = gql`
         mutation (
             $id: ID!
@@ -106,10 +101,13 @@ async function addAuthors(authors: AuthorEntry[]) {
             avatarUrl: author.avatarURL(),
         },
     }));
-    return await myBatchRequest(client, documents);
+    return await myBatchRequest<{ createAuthor: { id: string } }>(
+        client,
+        documents
+    );
 }
 
-async function addQuote(
+export async function addQuote(
     guildId: string,
     publisherId: string,
     sourceMessage: string,
@@ -150,7 +148,7 @@ async function addQuote(
     return await client.request(mutation, variables);
 }
 
-async function addPassages(passages: PassageEntry[], quoteId: string) {
+export async function addPassages(passages: PassageEntry[], quoteId: string) {
     const query = gql`
         mutation ($text: String!, $authorId: ID!, $quoteId: ID!) {
             createPassage(
@@ -170,16 +168,19 @@ async function addPassages(passages: PassageEntry[], quoteId: string) {
         },
     }));
 
-    return await myBatchRequest(client, documents);
+    return await myBatchRequest<{ createPassage: { id: string } }>(
+        client,
+        documents
+    );
 }
 
-async function myBatchRequest(
+async function myBatchRequest<T>(
     client: GraphQLClient,
     documents: { document: string; variables: any }[]
 ) {
     return Promise.all(
         documents.map(({ document, variables }) =>
-            client.request(document, variables)
+            client.request<T>(document, variables)
         )
     );
 }

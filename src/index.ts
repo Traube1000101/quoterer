@@ -46,3 +46,5 @@ client.on(Events.InteractionCreate, async (interaction) => {
 });
 
 client.login(config.DISCORD_TOKEN);
+
+export { client };

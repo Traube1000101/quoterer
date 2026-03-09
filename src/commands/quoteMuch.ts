@@ -7,11 +7,11 @@ import {
 } from "discord.js";
 
 import { config } from "@/util/config";
-import { createQuote, type PassageEntry } from "@/util/apiQuery";
+import { applyQuote, type PassageEntry } from "@/util/writeQuote";
 import {
     createSubmitCancelButtonRow,
     formatDurationMS,
-    parsePassages,
+    formatPassages,
 } from "@/util/UI";
 
 // Storage (in memory) for previous interactions / passages
@@ -70,7 +70,7 @@ export async function execute(
     sessions.set(sessionKey, passages);
 
     const response = await interaction.reply({
-        content: `**Quote so far** - run \`/quote-much\` again to add another passage:\n${parsePassages(passages)}`,
+        content: `**Quote so far** - run \`/quote-much\` again to add another passage:\n${formatPassages(passages)}`,
         components: [createSubmitCancelButtonRow()],
         flags: MessageFlags.Ephemeral,
         withResponse: true,
@@ -110,15 +110,16 @@ export async function execute(
 
         const finalPassages = sessions.get(sessionKey) ?? passages;
         sessions.delete(sessionKey);
-        await createQuote(
+        await applyQuote(
+            interaction,
             interaction.guildId,
             interaction.user,
             finalPassages,
-            parsePassages(finalPassages),
+            formatPassages(finalPassages),
             isPrivate
         );
         await confirmation.update({
-            content: `Quote saved with ${finalPassages.length} passage(s)!`,
+            content: `Quote saved with ${finalPassages.length} passage${finalPassages.length !== 1 ? "s" : ""}!`,
             components: [],
         });
     });
