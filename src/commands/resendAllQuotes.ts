@@ -27,7 +27,7 @@ export const data = new SlashCommandBuilder()
         option
             .setName("include-private")
             .setDescription(
-                "Whether to include private quotes in the resend (Default: false)"
+                "Whether to include private quotes in the resend (Default: true)"
             )
             .setRequired(false)
     );
@@ -50,7 +50,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     if (deleteOld) await deleteMessages(quotesChannel);
 
     const includePrivate =
-        interaction.options.getBoolean("include-private") ?? false;
+        interaction.options.getBoolean("include-private") ?? true;
     const quotes = await fetchGuildQuotes(interaction.guildId, includePrivate);
     await sendQuotesToChannel(quotesChannel, quotes);
     await interaction.editReply({
