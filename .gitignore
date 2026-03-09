@@ -1,6 +1,8 @@
+# Artifacts to ignore when committing to git
 node_modules
-.env
-db
+dist
 *.tar.[gx]z
 
-dist
+# Local environment variables
+.env
+!.env.example
