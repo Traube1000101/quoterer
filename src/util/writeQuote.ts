@@ -1,34 +1,35 @@
-import { ChatInputCommandInteraction, MessageFlags } from "discord.js";
+import { ChatInputCommandInteraction, SendableChannels } from "discord.js";
 import {
-    addAuthors,
-    addPassages,
-    addQuote,
-    getGuildChannelId,
-} from "./apiQuery";
+    putAuthors,
+    putPassages,
+    putQuote,
+    fetchGuildChannelId,
+} from "@/util/apiQuery";
 
-import { client } from "..";
-import { formatQuote } from "./UI";
+import { client } from "@/util/client";
+import { formatQuote } from "@/util/UI";
 
+export type PassageData = { text: string; author: Pick<AuthorEntry, "id"> };
+export type QuoteData = {
+    publisher: Pick<AuthorEntry, "id">;
+    passages: PassageData[];
+    isPrivate: boolean;
+};
 export async function sendQuoteToChannel(
-    interaction: ChatInputCommandInteraction<"cached">,
-    qoute: {
-        publisher: AuthorEntry;
-        passages: PassageEntry[];
-        isPrivate: boolean;
-    }
+    quotesChannel: SendableChannels,
+    qoute: QuoteData
 ) {
-    const channelId = await getGuildChannelId(interaction.guildId);
-    const quotesChannel = await client.channels.fetch(channelId);
-    if (quotesChannel === null || !quotesChannel.isSendable()) {
-        await interaction.reply({
-            content: "Quotes channel not found or wrongly configured!",
-            flags: [MessageFlags.Ephemeral],
-        });
-        return;
-    }
+    await sendQuotesToChannel(quotesChannel, [qoute]);
+}
 
-    const messageContent = formatQuote(qoute);
-    await quotesChannel.send(messageContent);
+export async function sendQuotesToChannel(
+    quotesChannel: SendableChannels,
+    qoutes: QuoteData[]
+) {
+    for (const quote of qoutes) {
+        const messageContent = formatQuote(quote);
+        await quotesChannel.send(messageContent);
+    }
 }
 
 export type AuthorEntry = {
@@ -47,14 +48,14 @@ export async function createQuoteDBEntry(
 ) {
     const authors = passages.map((p) => p.author);
     authors.push(publisher);
-    await addAuthors(authors);
-    const quote = await addQuote(
+    await putAuthors(authors);
+    const quote = await putQuote(
         guildId,
         publisher.id,
         sourceMessage,
         isPrivate
     );
-    await addPassages(passages, quote.createQuote.id);
+    await putPassages(passages, quote.createQuote.id);
 }
 
 export async function applyQuote(
@@ -72,9 +73,26 @@ export async function applyQuote(
         sourceMessage,
         isPrivate
     );
-    await sendQuoteToChannel(interaction, {
+    const quotesChannel = await fetchGuildChannel(guildId, interaction);
+    await sendQuoteToChannel(quotesChannel, {
         publisher,
         passages,
         isPrivate,
     });
+}
+
+export async function fetchGuildChannel(
+    guildId: string,
+    interaction: ChatInputCommandInteraction<"cached"> | null = null
+) {
+    const channelId = await fetchGuildChannelId(guildId);
+    const quotesChannel = await client.channels.fetch(channelId);
+    if (quotesChannel === null || !quotesChannel.isSendable()) {
+        if (interaction)
+            await interaction.editReply({
+                content: "Quotes channel not found or wrongly configured!",
+            });
+        return;
+    }
+    return quotesChannel;
 }

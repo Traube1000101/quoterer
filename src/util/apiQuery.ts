@@ -3,9 +3,54 @@ import type { AuthorEntry, PassageEntry } from "./writeQuote";
 import { config } from "@/util/config";
 import { gql, GraphQLClient } from "graphql-request";
 
-const client = new GraphQLClient(config.QUOTERER_GRAPHQL_ENDPOINT);
+const graphqlClient = new GraphQLClient(config.QUOTERER_GRAPHQL_ENDPOINT);
 
-export async function getGuildChannelId(guildId: string) {
+export async function fetchGuildQuotes(
+    guildId: string,
+    includePrivate: boolean
+) {
+    const query = gql`
+        query ($guildId: ID!, $includePrivate: Boolean!) {
+            guild(id: $guildId) {
+                quotes(includePrivate: $includePrivate) {
+                    isPrivate
+                    utteredAt
+                    passages {
+                        author {
+                            id
+                        }
+                        text
+                    }
+                    publisher {
+                        id
+                    }
+                }
+            }
+        }
+    `;
+
+    const variables = { guildId, includePrivate };
+    const response = await graphqlClient.request<{
+        guild: {
+            quotes: {
+                isPrivate: boolean;
+                utteredAt: number;
+                passages: {
+                    author: {
+                        id: string;
+                    };
+                    text: string;
+                }[];
+                publisher: {
+                    id: string;
+                };
+            }[];
+        };
+    }>(query, variables);
+    return response.guild.quotes;
+}
+
+export async function fetchGuildChannelId(guildId: string) {
     const query = gql`
         query ($guildId: ID!) {
             guild(id: $guildId) {
@@ -15,10 +60,9 @@ export async function getGuildChannelId(guildId: string) {
     `;
 
     const variables = { guildId };
-    const response = await client.request<{ guild: { channelId: string } }>(
-        query,
-        variables
-    );
+    const response = await graphqlClient.request<{
+        guild: { channelId: string };
+    }>(query, variables);
     return response.guild.channelId;
 }
 
@@ -60,7 +104,7 @@ export async function initGuild(
         channelName: channel.name,
     };
 
-    return await client.request<{ createGuild: { id: string } }>(
+    return await graphqlClient.request<{ createGuild: { id: string } }>(
         mutation,
         variables
     );
@@ -72,7 +116,7 @@ const filterUniqueAuthor = (
     self: AuthorEntry[]
 ) => index === self.findIndex((b) => b.id === a.id);
 
-export async function addAuthors(authors: AuthorEntry[]) {
+export async function putAuthors(authors: AuthorEntry[]) {
     const query = gql`
         mutation (
             $id: ID!
@@ -102,12 +146,12 @@ export async function addAuthors(authors: AuthorEntry[]) {
         },
     }));
     return await myBatchRequest<{ createAuthor: { id: string } }>(
-        client,
+        graphqlClient,
         documents
     );
 }
 
-export async function addQuote(
+export async function putQuote(
     guildId: string,
     publisherId: string,
     sourceMessage: string,
@@ -145,10 +189,12 @@ export async function addQuote(
         isPrivate,
     };
 
-    return await client.request(mutation, variables);
+    return await graphqlClient.request<{
+        createQuote: { id: string };
+    }>(mutation, variables);
 }
 
-export async function addPassages(passages: PassageEntry[], quoteId: string) {
+export async function putPassages(passages: PassageEntry[], quoteId: string) {
     const query = gql`
         mutation ($text: String!, $authorId: ID!, $quoteId: ID!) {
             createPassage(
@@ -169,7 +215,7 @@ export async function addPassages(passages: PassageEntry[], quoteId: string) {
     }));
 
     return await myBatchRequest<{ createPassage: { id: string } }>(
-        client,
+        graphqlClient,
         documents
     );
 }
@@ -178,6 +224,7 @@ async function myBatchRequest<T>(
     client: GraphQLClient,
     documents: { document: string; variables: any }[]
 ) {
+    // TODO: Consider real batch requests to reduce overhead (but this is quite simple)
     return Promise.all(
         documents.map(({ document, variables }) =>
             client.request<T>(document, variables)

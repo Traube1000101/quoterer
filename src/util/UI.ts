@@ -6,7 +6,7 @@ import {
     DiscordjsErrorCodes,
     ChatInputCommandInteraction,
 } from "discord.js";
-import type { PassageEntry, AuthorEntry } from "./writeQuote";
+import type { PassageEntry, QuoteData } from "./writeQuote";
 import { ClientError } from "graphql-request";
 import { config } from "@/util/config";
 
@@ -80,11 +80,6 @@ export function formatDurationMS(ms: number) {
     );
 }
 
-type QuoteData = {
-    publisher: AuthorEntry;
-    passages: PassageEntry[];
-    isPrivate: boolean;
-};
 export function formatQuote({ publisher, passages, isPrivate }: QuoteData) {
     const intro = `-# Quote published by ${userID2MentionString(publisher.id)}:`;
     const passagesText = passages

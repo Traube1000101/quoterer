@@ -7,6 +7,7 @@ import * as quote from "./quote";
 import * as quoteMuch from "./quoteMuch";
 import * as quoteMuchPrivate from "./quoteMuchPrivate";
 import * as quotePrivate from "./quotePrivate";
+import * as resendAllQuotes from "./resendAllQuotes";
 import * as setChannel from "./setChannel";
 
 export const commands = {
@@ -15,5 +16,6 @@ export const commands = {
     [quoteMuch.data.name]: quoteMuch,
     [quoteMuchPrivate.data.name]: quoteMuchPrivate,
     [quotePrivate.data.name]: quotePrivate,
+    [resendAllQuotes.data.name]: resendAllQuotes,
     [setChannel.data.name]: setChannel,
 };

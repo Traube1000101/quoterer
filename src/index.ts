@@ -1,11 +1,8 @@
-import { Client, Events, GatewayIntentBits, MessageFlags } from "discord.js";
-import { config } from "./util/config";
-import { commands } from "./commands";
-import { deployCommands } from "./util/deploy-commands";
-
-const client = new Client({
-    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
-});
+import { Events, MessageFlags } from "discord.js";
+import { commands } from "@/commands";
+import { config } from "@/util/config";
+import { client } from "@/util/client";
+import { deployCommands } from "@/util/deployCommands";
 
 client.once(Events.ClientReady, (readyClient) => {
     console.log(`Ready! 🤖 Logged in as ${readyClient.user.tag}`);
