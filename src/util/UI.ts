@@ -33,7 +33,10 @@ function userID2MentionString(userId: string) {
 
 export function formatPassages(passages: PassageEntry[]) {
     return passages
-        .map((p) => `-# "${p.text}" - ${userID2MentionString(p.author.id)}`)
+        .map(
+            (p) =>
+                `-# "${p.text.trim()}" - ${userID2MentionString(p.author.id)}`
+        )
         .join("\n");
 }
 
@@ -42,6 +45,7 @@ export async function catchInteractionCollectorError(
     interaction: ChatInputCommandInteraction<"cached">
 ) {
     if (!error || typeof error !== "object") {
+        console.error("Unknown error:", error);
         await interaction.editReply({
             content: "An unknown error occurred. WTF?",
             components: [],
@@ -67,10 +71,24 @@ export async function catchInteractionCollectorError(
         return;
     }
 
+    if (
+        ("code" in error && error.code === "EHOSTUNREACH") ||
+        ("errno" in error && error.errno === -113)
+    ) {
+        console.error("Database API not responding: ", error);
+        await interaction.editReply({
+            content: "Our database seems to be down. Sry...",
+            components: [],
+        });
+        return;
+    }
+
+    console.error("Unknown error:", error);
     await interaction.editReply({
         content: "An unknown error occurred. Sry...",
         components: [],
     });
+    console.error("\nError Object:", { ...error });
 }
 
 export function formatDurationMS(ms: number) {
@@ -80,11 +98,34 @@ export function formatDurationMS(ms: number) {
     );
 }
 
-export function formatQuote({ publisher, passages, isPrivate }: QuoteData) {
-    const intro = `-# Quote published by ${userID2MentionString(publisher.id)}:`;
+// ...existing code...
+
+export function formatQuote({
+    publisher,
+    passages,
+    isPrivate,
+    utteredAt,
+}: QuoteData) {
+    const date = new Date(utteredAt).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    });
+
     const passagesText = passages
-        .map((p) => `"${p.text}"\t - ${userID2MentionString(p.author.id)}`)
+        .map(
+            (p) =>
+                `> ### ❝ ${p.text.trim()} ❞ — ${userID2MentionString(p.author.id)}`
+        )
+        .join("\n> \n");
+
+    const footer = [
+        `-# 📅  ${date}`,
+        `-# 📌  Archived by ${userID2MentionString(publisher.id)}`,
+        isPrivate ? `-# 🔒 *Private Quote*` : "",
+    ]
+        .filter(Boolean)
         .join("\n");
-    const privacyNote = isPrivate ? "*(This quote is private)*" : "";
-    return `${intro}\n${passagesText}\n\n${privacyNote}`;
+
+    return `${passagesText}\n\n${footer}`;
 }

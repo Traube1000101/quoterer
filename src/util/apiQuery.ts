@@ -208,7 +208,7 @@ export async function putPassages(passages: PassageEntry[], quoteId: string) {
     const documents = passages.map((passage) => ({
         document: query,
         variables: {
-            text: passage.text,
+            text: passage.text.trim(),
             authorId: passage.author.id,
             quoteId,
         },

@@ -101,6 +101,12 @@ GUILD_ID=
 
 ## Running (for development)
 
+(Re-) build the bot:
+
+```sh
+docker compose build bot
+```
+
 Fire up the whole stack:
 
 ```sh
