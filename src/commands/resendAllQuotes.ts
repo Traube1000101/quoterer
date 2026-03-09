@@ -53,9 +53,15 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         interaction.options.getBoolean("include-private") ?? true;
     const quotes = await fetchGuildQuotes(interaction.guildId, includePrivate);
     await sendQuotesToChannel(quotesChannel, quotes);
-    await interaction.editReply({
-        content: `Resent ${quotes.length} quote(s) to the quotes channel!`,
-    });
+    try {
+        await interaction.editReply({
+            content: `Resent ${quotes.length} quote(s) to the quotes channel!`,
+        });
+    } catch {
+        interaction.channel.send(
+            `Resent ${quotes.length} quote(s) to the quotes channel!`
+        );
+    }
 }
 
 const MAX_ITERATIONS = 10; // Safety limit to prevent infinite loops
@@ -68,8 +74,8 @@ async function deleteMessages(quotesChannel: SendableChannels) {
         fetchedMessages = await quotesChannel.messages.fetch({
             limit: DELETE_BATCH_SIZE,
         });
-        if (fetchedMessages.size < DELETE_BATCH_SIZE) break; // No more messages to delete
         const deletePromises = fetchedMessages.map((msg) => msg.delete());
         await Promise.all(deletePromises);
+        if (fetchedMessages.size < DELETE_BATCH_SIZE) break; // No more messages to delete
     }
 }
