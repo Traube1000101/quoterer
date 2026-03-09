@@ -14,6 +14,7 @@ export type QuoteData = {
     publisher: Pick<AuthorEntry, "id">;
     passages: PassageData[];
     isPrivate: boolean;
+    utteredAt: number;
 };
 export async function sendQuoteToChannel(
     quotesChannel: SendableChannels,
@@ -39,46 +40,41 @@ export type AuthorEntry = {
     avatarURL: () => string | null;
 };
 export type PassageEntry = { text: string; author: AuthorEntry };
-export async function createQuoteDBEntry(
-    guildId: string,
-    publisher: AuthorEntry,
-    passages: PassageEntry[],
-    sourceMessage: string,
-    isPrivate = false
-) {
+export type QuoteEntry = {
+    guildId: string;
+    publisher: AuthorEntry;
+    passages: PassageEntry[];
+    isPrivate: boolean;
+    sourceMessage: string;
+    utteredAt: number;
+};
+export async function createQuoteDBEntry({
+    guildId,
+    publisher,
+    passages,
+    sourceMessage,
+    isPrivate,
+}: QuoteEntry) {
     const authors = passages.map((p) => p.author);
     authors.push(publisher);
     await putAuthors(authors);
-    const quote = await putQuote(
+    const quote = await putQuote({
         guildId,
-        publisher.id,
+        publisher,
         sourceMessage,
-        isPrivate
-    );
+        isPrivate,
+        utteredAt: Date.now(),
+    });
     await putPassages(passages, quote.createQuote.id);
 }
 
 export async function applyQuote(
     interaction: ChatInputCommandInteraction<"cached">,
-    guildId: string,
-    publisher: AuthorEntry,
-    passages: PassageEntry[],
-    sourceMessage: string,
-    isPrivate = false
+    quote: QuoteEntry
 ) {
-    await createQuoteDBEntry(
-        guildId,
-        publisher,
-        passages,
-        sourceMessage,
-        isPrivate
-    );
-    const quotesChannel = await fetchGuildChannel(guildId, interaction);
-    await sendQuoteToChannel(quotesChannel, {
-        publisher,
-        passages,
-        isPrivate,
-    });
+    await createQuoteDBEntry(quote);
+    const quotesChannel = await fetchGuildChannel(quote.guildId, interaction);
+    await sendQuoteToChannel(quotesChannel, quote);
 }
 
 export async function fetchGuildChannel(

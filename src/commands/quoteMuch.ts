@@ -110,14 +110,14 @@ export async function execute(
 
         const finalPassages = sessions.get(sessionKey) ?? passages;
         sessions.delete(sessionKey);
-        await applyQuote(
-            interaction,
-            interaction.guildId,
-            interaction.user,
-            finalPassages,
-            formatPassages(finalPassages),
-            isPrivate
-        );
+        await applyQuote(interaction, {
+            guildId: interaction.guildId,
+            publisher: interaction.user,
+            passages: finalPassages,
+            sourceMessage: formatPassages(finalPassages),
+            isPrivate,
+            utteredAt: Date.now(),
+        });
         await confirmation.update({
             content: `Quote saved with ${finalPassages.length} passage${finalPassages.length !== 1 ? "s" : ""}!`,
             components: [],

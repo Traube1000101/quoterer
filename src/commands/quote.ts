@@ -75,14 +75,14 @@ export async function execute(
             return;
         }
 
-        await applyQuote(
-            interaction,
-            interaction.guildId,
-            author,
-            [{ text: message, author: author }],
-            message,
-            isPrivate
-        );
+        await applyQuote(interaction, {
+            guildId: interaction.guildId,
+            publisher: author,
+            passages: [{ text: message, author: author }],
+            sourceMessage: message,
+            isPrivate,
+            utteredAt: Date.now(),
+        });
 
         await confirmation.update({
             content: "Your message has been quoted!",

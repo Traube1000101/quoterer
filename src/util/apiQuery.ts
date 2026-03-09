@@ -1,4 +1,4 @@
-import type { AuthorEntry, PassageEntry } from "./writeQuote";
+import type { AuthorEntry, PassageEntry, QuoteEntry } from "./writeQuote";
 
 import { config } from "@/util/config";
 import { gql, GraphQLClient } from "graphql-request";
@@ -151,13 +151,13 @@ export async function putAuthors(authors: AuthorEntry[]) {
     );
 }
 
-export async function putQuote(
-    guildId: string,
-    publisherId: string,
-    sourceMessage: string,
-    isPrivate = false
-) {
-    const utteredAt = Date.now();
+export async function putQuote({
+    guildId,
+    publisher,
+    sourceMessage,
+    isPrivate,
+    utteredAt,
+}: Omit<QuoteEntry, "passages">) {
     const mutation = gql`
         mutation (
             $guildId: ID!
@@ -183,7 +183,7 @@ export async function putQuote(
 
     const variables = {
         guildId,
-        publisherId,
+        publisherId: publisher.id,
         sourceMessage,
         utteredAt,
         isPrivate,
