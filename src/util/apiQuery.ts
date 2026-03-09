@@ -106,7 +106,7 @@ async function addAuthors(authors: AuthorEntry[]) {
             avatarUrl: author.avatarURL(),
         },
     }));
-    return await client.batchRequests(documents);
+    return await myBatchRequest(client, documents);
 }
 
 async function addQuote(
@@ -170,5 +170,16 @@ async function addPassages(passages: PassageEntry[], quoteId: string) {
         },
     }));
 
-    return await client.batchRequests(documents);
+    return await myBatchRequest(client, documents);
+}
+
+async function myBatchRequest(
+    client: GraphQLClient,
+    documents: { document: string; variables: any }[]
+) {
+    return Promise.all(
+        documents.map(({ document, variables }) =>
+            client.request(document, variables)
+        )
+    );
 }
