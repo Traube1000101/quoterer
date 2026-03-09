@@ -21,9 +21,9 @@ services:
         ports:
             - "8080:8080"
         environment:
-            SPRING_PROFILES_ACTIVE: dev
             POSTGRES_USER: ${POSTGRES_USER}
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
             POSTGRES_HOST: postgres
         networks:
             - quoterer-network
@@ -35,6 +35,7 @@ services:
         environment:
             POSTGRES_USER: ${POSTGRES_USER}
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
         networks:
             - quoterer-network
         volumes:
