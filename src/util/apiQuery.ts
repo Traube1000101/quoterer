@@ -5,6 +5,12 @@ import { gql, GraphQLClient } from "graphql-request";
 
 const graphqlClient = new GraphQLClient(config.QUOTERER_GRAPHQL_ENDPOINT);
 
+/**
+ * Fetches all quotes for a guild from the GraphQL API. Quotes are sorted by utteredAt timestamp in descending order (newest first).
+ * @param guildId The Discord guild ID to fetch quotes for.
+ * @param includePrivate Whether to include private quotes in the results.
+ * @returns An array of sorted quote objects with their passages, publisher, and metadata.
+ */
 export async function fetchGuildQuotes(
     guildId: string,
     includePrivate: boolean
@@ -47,9 +53,17 @@ export async function fetchGuildQuotes(
             }[];
         };
     }>(query, variables);
-    return response.guild.quotes;
+    const sortedQuotes = response.guild.quotes.sort(
+        (a, b) => b.utteredAt - a.utteredAt
+    );
+    return sortedQuotes;
 }
 
+/**
+ * Fetches the configured quote channel ID for a guild.
+ * @param guildId The Discord guild ID to look up.
+ * @returns The channel ID associated with the guild.
+ */
 export async function fetchGuildChannelId(guildId: string) {
     const query = gql`
         query ($guildId: ID!) {
@@ -66,6 +80,12 @@ export async function fetchGuildChannelId(guildId: string) {
     return response.guild.channelId;
 }
 
+/**
+ * Initializes a new guild in the API by creating a guild record with its quote channel.
+ * @param guild The Discord guild object containing its name, ID, and icon URL getter.
+ * @param channel The channel to use for quotes, with its ID and name.
+ * @returns The created guild's ID.
+ */
 export async function initGuild(
     guild: {
         name: string;
@@ -116,6 +136,11 @@ const filterUniqueAuthor = (
     self: AuthorEntry[]
 ) => index === self.findIndex((b) => b.id === a.id);
 
+/**
+ * Creates or updates author records in the API. Deduplicates authors by ID before sending.
+ * @param authors Array of author entries to upsert.
+ * @returns An array of responses containing the created author IDs.
+ */
 export async function putAuthors(authors: AuthorEntry[]) {
     const query = gql`
         mutation (
@@ -151,6 +176,11 @@ export async function putAuthors(authors: AuthorEntry[]) {
     );
 }
 
+/**
+ * Creates a new quote record in the API.
+ * @param quote The quote data excluding passages (guild ID, publisher, source message, privacy flag, and timestamp).
+ * @returns The created quote's ID.
+ */
 export async function putQuote({
     guildId,
     publisher,
@@ -172,7 +202,6 @@ export async function putQuote({
                     publisherId: $publisherId
                     sourceMessage: $sourceMessage
                     utteredAt: $utteredAt
-                    createdAt: $utteredAt
                     isPrivate: $isPrivate
                 }
             ) {
@@ -194,6 +223,12 @@ export async function putQuote({
     }>(mutation, variables);
 }
 
+/**
+ * Creates passage records for a quote. Each passage is ordered by its array index.
+ * @param passages Array of passage entries containing text and author info.
+ * @param quoteId The ID of the quote these passages belong to.
+ * @returns An array of responses containing the created passage IDs.
+ */
 export async function putPassages(passages: PassageEntry[], quoteId: string) {
     const query = gql`
         mutation ($text: String!, $authorId: ID!, $quoteId: ID!, order: Int!) {
@@ -221,6 +256,12 @@ export async function putPassages(passages: PassageEntry[], quoteId: string) {
     );
 }
 
+/**
+ * Executes multiple GraphQL requests concurrently.
+ * @param client The GraphQL client instance to use.
+ * @param documents Array of GraphQL documents with their variables.
+ * @returns An array of all response results.
+ */
 async function myBatchRequest<T>(
     client: GraphQLClient,
     documents: { document: string; variables: any }[]
