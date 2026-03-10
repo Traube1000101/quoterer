@@ -116,7 +116,7 @@ export async function execute(
             passages: finalPassages,
             sourceMessage: formatPassages(finalPassages),
             isPrivate,
-            utteredAt: new Date().toISOString(),
+            utteredAt: new Date(),
         });
         await confirmation.update({
             content: `Quote saved with ${finalPassages.length} passage${finalPassages.length !== 1 ? "s" : ""}!`,

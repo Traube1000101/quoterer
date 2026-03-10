@@ -5,6 +5,7 @@ import {
     MessageActionRowComponentBuilder,
     DiscordjsErrorCodes,
     ChatInputCommandInteraction,
+    EmbedBuilder,
 } from "discord.js";
 import type { PassageEntry, QuoteData } from "./writeQuote";
 import { ClientError } from "graphql-request";
@@ -37,6 +38,7 @@ export function createSubmitCancelButtonRow() {
  * @returns A formatted mention string (e.g. `<@123456>`).
  */
 function userID2MentionString(userId: string) {
+    if (userId.length == 36 && userId.charAt(8) === "-") return userId;
     return `<@${userId}>`;
 }
 
@@ -123,12 +125,10 @@ export function formatDurationMS(ms: number) {
     );
 }
 
-// ...existing code...
-
 /**
- * Formats a quote into a styled Discord message string with passages, date, and metadata.
+ * Formats a quote into a styled Discord embed with passages, date, and metadata.
  * @param quote The quote data to format.
- * @returns A formatted message string ready to be sent in a Discord channel.
+ * @returns An EmbedBuilder ready to be sent in a Discord channel.
  */
 export function formatQuote({
     publisher,
@@ -136,26 +136,27 @@ export function formatQuote({
     isPrivate,
     utteredAt,
 }: QuoteData) {
-    const date = new Date(utteredAt).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-    });
+    const date = new Date(utteredAt);
 
     const passagesText = passages
         .map(
             (p) =>
-                `> ### ❝ ${p.text.trim()} ❞ — ${userID2MentionString(p.author.id)}`
+                `### ❝ ${p.text.trim()} ❞ — ${userID2MentionString(p.author.id)}`
         )
-        .join("\n> \n");
-
-    const footer = [
-        `-# 📅  ${date}`,
-        `-# 📌  Archived by ${userID2MentionString(publisher.id)}`,
-        isPrivate ? `-# 🔒 *Private Quote*` : "",
-    ]
-        .filter(Boolean)
         .join("\n");
 
-    return `${passagesText}\n\n${footer}`;
+    const embed = new EmbedBuilder()
+        .setColor(isPrivate ? 0xf5c542 : 0x5865f2)
+        .setDescription(passagesText)
+        .addFields({
+            name: "\u200b",
+            value: `📌 Archived by ${userID2MentionString(publisher.id)}`,
+        })
+        .setTimestamp(date);
+
+    if (isPrivate) {
+        embed.setAuthor({ name: "🔒 Private Quote" });
+    }
+
+    return embed;
 }

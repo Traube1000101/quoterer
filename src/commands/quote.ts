@@ -81,7 +81,7 @@ export async function execute(
             passages: [{ text: message, author: author }],
             sourceMessage: message,
             isPrivate,
-            utteredAt: new Date().toISOString(),
+            utteredAt: new Date(),
         });
 
         await confirmation.update({

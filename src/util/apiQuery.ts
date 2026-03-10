@@ -53,9 +53,13 @@ export async function fetchGuildQuotes(
             }[];
         };
     }>(query, variables);
-    const sortedQuotes = response.guild.quotes.sort(
-        (a, b) =>
-            new Date(b.utteredAt).getTime() - new Date(a.utteredAt).getTime()
+
+    const datedQuotes = response.guild.quotes.map((quote) => ({
+        ...quote,
+        utteredAt: new Date(quote.utteredAt),
+    }));
+    const sortedQuotes = datedQuotes.sort(
+        (a, b) => b.utteredAt.getTime() - a.utteredAt.getTime()
     );
     return sortedQuotes;
 }
@@ -215,7 +219,7 @@ export async function putQuote({
         guildId,
         publisherId: publisher.id,
         sourceMessage,
-        utteredAt,
+        utteredAt: utteredAt.toISOString(),
         isPrivate,
     };
 

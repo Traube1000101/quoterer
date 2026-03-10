@@ -16,7 +16,7 @@ export type QuoteData = {
     publisher: Pick<AuthorEntry, "id">;
     passages: PassageData[];
     isPrivate: boolean;
-    utteredAt: string;
+    utteredAt: Date;
 };
 /**
  * Sends a single formatted quote to the specified channel.
@@ -68,7 +68,7 @@ export type QuoteEntry = {
     passages: PassageEntry[];
     isPrivate: boolean;
     sourceMessage: string;
-    utteredAt: string;
+    utteredAt: Date;
 };
 /**
  * Persists a quote and its associated authors and passages to the database via the API.
@@ -89,7 +89,7 @@ export async function createQuoteDBEntry({
         publisher,
         sourceMessage,
         isPrivate,
-        utteredAt: new Date().toISOString(),
+        utteredAt: new Date(),
     });
     await putPassages(passages, quote.createQuote.id);
 }
