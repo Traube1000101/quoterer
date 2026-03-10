@@ -12,6 +12,7 @@ import {
     createSubmitCancelButtonRow,
     formatDurationMS,
     formatPassages,
+    formatQuote,
 } from "@/util/UI";
 
 // Storage (in memory) for previous interactions / passages
@@ -69,8 +70,15 @@ export async function execute(
     passages.push({ text: message, author: passageAuthor });
     sessions.set(sessionKey, passages);
 
+    const qouteEmbed = formatQuote({
+        publisher: interaction.user,
+        passages,
+        isPrivate,
+        utteredAt: new Date(),
+    });
     const response = await interaction.reply({
-        content: `**Quote so far** - run \`/quote-much\` again to add another passage:\n${formatPassages(passages)}`,
+        content: `**Quote so far** - run \`/quote-much\` again to add another passage:`,
+        embeds: qouteEmbed.embeds,
         components: [createSubmitCancelButtonRow()],
         flags: MessageFlags.Ephemeral,
         withResponse: true,
@@ -133,6 +141,7 @@ export async function execute(
                     config.MAX_RESPONSE_TIME
                 )}, session cancelled.`,
                 components: [],
+                embeds: [],
             });
         }
         // "superseded" is handled by the next invocation; "limit" is handled in "collect"

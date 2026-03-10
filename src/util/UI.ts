@@ -152,7 +152,7 @@ export function formatQuote({
         )
         .setTimestamp(date);
 
-    if (isPrivate) embed.setAuthor({ name: "-# 🔒 Private Quote" });
+    if (isPrivate) embed.setAuthor({ name: "🔒 Private Quote" });
 
     return { embeds: [embed] };
 }
