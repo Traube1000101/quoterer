@@ -129,24 +129,32 @@ export async function execute(
             isPrivate,
             utteredAt: new Date(),
         });
-        await confirmation.update({
-            content: `Quote saved with ${finalPassages.length} passage${finalPassages.length !== 1 ? "s" : ""}!`,
-            components: [],
-            embeds: [],
-        });
+        try {
+            await confirmation.update({
+                content: `Quote saved with ${finalPassages.length} passage${finalPassages.length !== 1 ? "s" : ""}!`,
+                components: [],
+                embeds: [],
+            });
+        } catch (error) {
+            console.error("Failed to update confirmation message:", error);
+        }
     });
 
     collector.on("end", async (_collected, reason) => {
         if (reason === "time") {
             sessions.delete(sessionKey);
             activeCollectors.delete(sessionKey);
-            await interaction.editReply({
-                content: `Confirmation not received within ${formatDurationMS(
-                    config.MAX_RESPONSE_TIME
-                )}, session cancelled.`,
-                components: [],
-                embeds: [],
-            });
+            try {
+                await interaction.editReply({
+                    content: `Confirmation not received within ${formatDurationMS(
+                        config.MAX_RESPONSE_TIME
+                    )}, session cancelled.`,
+                    components: [],
+                    embeds: [],
+                });
+            } catch (error) {
+                console.error("Failed to edit reply on collector end:", error);
+            }
         }
         // "superseded" is handled by the next invocation; "limit" is handled in "collect"
     });
