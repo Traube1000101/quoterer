@@ -22,6 +22,7 @@ services:
             - "8080:8080"
         environment:
             SPRING_GRAPHQL_GRAPHIQL_ENABLED: true
+            # SPRING_JPA_HIBERNATE_DDL_AUTO: update # Clear database (for when schema changes are made)
             POSTGRES_USER: ${POSTGRES_USER}
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
             POSTGRES_DB: ${POSTGRES_DB}

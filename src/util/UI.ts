@@ -110,7 +110,6 @@ export async function catchInteractionCollectorError(
         content: "An unknown error occurred. Sry...",
         components: [],
     });
-    console.error("\nError Object:", { ...error });
 }
 
 /**
