@@ -196,21 +196,22 @@ export async function putQuote({
 
 export async function putPassages(passages: PassageEntry[], quoteId: string) {
     const query = gql`
-        mutation ($text: String!, $authorId: ID!, $quoteId: ID!) {
+        mutation ($text: String!, $authorId: ID!, $quoteId: ID!, order: Int!) {
             createPassage(
-                input: { text: $text, authorId: $authorId, quoteId: $quoteId }
+                input: { text: $text, authorId: $authorId, quoteId: $quoteId, order: $order }
             ) {
                 id
             }
         }
     `;
 
-    const documents = passages.map((passage) => ({
+    const documents = passages.map((passage, i) => ({
         document: query,
         variables: {
             text: passage.text.trim(),
             authorId: passage.author.id,
             quoteId,
+            order: i,
         },
     }));
 
