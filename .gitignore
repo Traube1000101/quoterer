@@ -3,6 +3,8 @@ node_modules
 dist
 *.tar.[gx]z
 
+src/commands/index.ts
+
 # Local environment variables
 .env
 !.env.example

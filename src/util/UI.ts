@@ -147,16 +147,13 @@ export function formatQuote({
 
     const embed = new EmbedBuilder()
         .setColor(isPrivate ? 0xf5c542 : 0x5865f2)
-        .setDescription(passagesText)
-        .addFields({
-            name: "\u200b",
-            value: `📌 Archived by ${userID2MentionString(publisher.id)}`,
-        })
+        .setDescription(
+            passagesText +
+                `\n-# 📌  Archived by ${userID2MentionString(publisher.id)}`
+        )
         .setTimestamp(date);
 
-    if (isPrivate) {
-        embed.setAuthor({ name: "🔒 Private Quote" });
-    }
+    if (isPrivate) embed.setAuthor({ name: "-# 🔒 Private Quote" });
 
-    return embed;
+    return { embeds: [embed] };
 }

@@ -46,8 +46,8 @@ export async function sendQuotesToChannel(
         SEND_RATE_LIMIT.window_ms / SEND_RATE_LIMIT.amount
     );
     for (const quote of qoutes) {
-        const embed = formatQuote(quote);
-        await quotesChannel.send({ embeds: [embed] });
+        const message = formatQuote(quote);
+        await quotesChannel.send(message);
         await delay(delayPerMessage);
     }
 }
