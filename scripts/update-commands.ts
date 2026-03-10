@@ -12,9 +12,10 @@ function file2commandName(file: string) {
 }
 
 /**
- * This script generates the src/commands/index.ts file by reading all command files in the src/commands directory.
- * It creates import statements for each command file and exports them in a commands object.
- * To use this script, run 'npm run update:index' after adding or removing command files.
+ * This script generates the src/commands/index.ts file by reading all command
+ * files in the src/commands directory. It creates import statements for each
+ * command file and exports them in a commands object. To use this script, run
+ * 'npm run update:index' after adding or removing command files.
  */
 function updateIndexFile() {
     const comment =

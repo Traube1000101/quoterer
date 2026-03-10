@@ -6,6 +6,10 @@ const commandsData = Object.values(commands).map((command) => command.data);
 
 const rest = new REST().setToken(config.DISCORD_TOKEN);
 
+/**
+ * Registers all application slash commands to a specific guild via the Discord REST API.
+ * @param options - An object containing the target guild ID.
+ */
 export async function deployCommands({ guildId }: { guildId: string }) {
     try {
         console.log(

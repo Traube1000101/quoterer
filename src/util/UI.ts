@@ -10,6 +10,10 @@ import type { PassageEntry, QuoteData } from "./writeQuote";
 import { ClientError } from "graphql-request";
 import { config } from "@/util/config";
 
+/**
+ * Creates an action row with Submit and Cancel buttons for quote confirmation.
+ * @returns A Discord action row containing the two buttons.
+ */
 export function createSubmitCancelButtonRow() {
     const submit = new ButtonBuilder()
         .setCustomId("submit")
@@ -27,10 +31,20 @@ export function createSubmitCancelButtonRow() {
     return row;
 }
 
+/**
+ * Converts a Discord user ID to a mention string.
+ * @param userId The Discord user ID.
+ * @returns A formatted mention string (e.g. `<@123456>`).
+ */
 function userID2MentionString(userId: string) {
     return `<@${userId}>`;
 }
 
+/**
+ * Formats an array of passages into a readable string with author mentions.
+ * @param passages The passages to format.
+ * @returns A newline-separated string of quoted passages with their authors.
+ */
 export function formatPassages(passages: PassageEntry[]) {
     return passages
         .map(
@@ -40,6 +54,12 @@ export function formatPassages(passages: PassageEntry[]) {
         .join("\n");
 }
 
+/**
+ * Handles errors from interaction collectors by replying with an appropriate message.
+ * Covers timeout, GraphQL, network, and unknown error cases.
+ * @param error The caught error object.
+ * @param interaction The command interaction to reply to.
+ */
 export async function catchInteractionCollectorError(
     error: unknown,
     interaction: ChatInputCommandInteraction<"cached">
@@ -91,6 +111,11 @@ export async function catchInteractionCollectorError(
     console.error("\nError Object:", { ...error });
 }
 
+/**
+ * Formats a duration in milliseconds as a human-readable relative time string.
+ * @param ms The duration in milliseconds.
+ * @returns A localized relative time string (e.g. "in 30 seconds").
+ */
 export function formatDurationMS(ms: number) {
     return new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(
         ms / 1000,
@@ -100,6 +125,11 @@ export function formatDurationMS(ms: number) {
 
 // ...existing code...
 
+/**
+ * Formats a quote into a styled Discord message string with passages, date, and metadata.
+ * @param quote The quote data to format.
+ * @returns A formatted message string ready to be sent in a Discord channel.
+ */
 export function formatQuote({
     publisher,
     passages,
