@@ -10,6 +10,7 @@ import { applyQuote } from "@/util/writeQuote";
 import {
     catchInteractionCollectorError,
     createSubmitCancelButtonRow,
+    formatQuote,
 } from "@/util/UI";
 
 export const data = new SlashCommandBuilder()
@@ -45,10 +46,19 @@ export async function execute(
     const authorOption = interaction.options.getUser("author");
     const author = authorOption ?? interaction.user;
 
+    const qoute = {
+        guildId: interaction.guildId,
+        publisher: author,
+        passages: [{ text: message, author: author }],
+        sourceMessage: message,
+        isPrivate,
+        utteredAt: new Date(),
+    };
+
+    const qouteEmbed = formatQuote(qoute);
     const response = await interaction.reply({
-        content: `Are you sure you want to quote the following message?\n-# "${
-            message
-        }" - <@${author.id}>`,
+        content: "Are you sure you want to quote the following message?",
+        embeds: qouteEmbed.embeds,
         components: [createSubmitCancelButtonRow()],
         flags: MessageFlags.Ephemeral,
         withResponse: true,
@@ -58,6 +68,7 @@ export async function execute(
         return interaction.editReply({
             content: "Failed to send confirmation message.",
             components: [],
+            embeds: [],
         });
     }
     try {
@@ -71,22 +82,17 @@ export async function execute(
             await confirmation.update({
                 content: "Quote creation cancelled.",
                 components: [],
+                embeds: [],
             });
             return;
         }
 
-        await applyQuote(interaction, {
-            guildId: interaction.guildId,
-            publisher: author,
-            passages: [{ text: message, author: author }],
-            sourceMessage: message,
-            isPrivate,
-            utteredAt: new Date(),
-        });
+        await applyQuote(interaction, qoute);
 
         await confirmation.update({
             content: "Your message has been quoted!",
             components: [],
+            embeds: [],
         });
     } catch (error) {
         await catchInteractionCollectorError(error, interaction);

@@ -76,18 +76,20 @@ export async function execute(
         isPrivate,
         utteredAt: new Date(),
     });
+
     const response = await interaction.reply({
         content: `**Quote so far** - run \`/quote-much\` again to add another passage:`,
-        embeds: qouteEmbed.embeds,
         components: [createSubmitCancelButtonRow()],
         flags: MessageFlags.Ephemeral,
         withResponse: true,
+        ...qouteEmbed,
     });
 
     if (response.resource === null || response.resource.message === null) {
         return interaction.editReply({
             content: "Failed to send confirmation message.",
             components: [],
+            embeds: [],
         });
     }
 
@@ -112,6 +114,7 @@ export async function execute(
             await confirmation.update({
                 content: "Quote creation cancelled.",
                 components: [],
+                embeds: [],
             });
             return;
         }
@@ -129,6 +132,7 @@ export async function execute(
         await confirmation.update({
             content: `Quote saved with ${finalPassages.length} passage${finalPassages.length !== 1 ? "s" : ""}!`,
             components: [],
+            embeds: [],
         });
     });
 
