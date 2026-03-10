@@ -30,6 +30,7 @@ export async function sendQuoteToChannel(
     await sendQuotesToChannel(quotesChannel, [qoute]);
 }
 
+const SEND_RATE_LIMIT = { amount: 5, window_ms: 5000 };
 /**
  * Sends multiple formatted quotes to the specified channel sequentially.
  * @param quotesChannel The Discord channel to send quotes to.
@@ -39,9 +40,15 @@ export async function sendQuotesToChannel(
     quotesChannel: SendableChannels,
     qoutes: QuoteData[]
 ) {
+    const delay = (ms: number) =>
+        new Promise((resolve) => setTimeout(resolve, ms));
+    const delayPerMessage = Math.ceil(
+        SEND_RATE_LIMIT.window_ms / SEND_RATE_LIMIT.amount
+    );
     for (const quote of qoutes) {
         const embed = formatQuote(quote);
         await quotesChannel.send({ embeds: [embed] });
+        await delay(delayPerMessage);
     }
 }
 
