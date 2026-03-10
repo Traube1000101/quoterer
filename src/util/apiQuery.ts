@@ -40,7 +40,7 @@ export async function fetchGuildQuotes(
         guild: {
             quotes: {
                 isPrivate: boolean;
-                utteredAt: number;
+                utteredAt: string;
                 passages: {
                     author: {
                         id: string;
@@ -54,7 +54,8 @@ export async function fetchGuildQuotes(
         };
     }>(query, variables);
     const sortedQuotes = response.guild.quotes.sort(
-        (a, b) => b.utteredAt - a.utteredAt
+        (a, b) =>
+            new Date(b.utteredAt).getTime() - new Date(a.utteredAt).getTime()
     );
     return sortedQuotes;
 }
@@ -193,7 +194,7 @@ export async function putQuote({
             $guildId: ID!
             $publisherId: ID!
             $sourceMessage: String
-            $utteredAt: Long
+            $utteredAt: DateTime
             $isPrivate: Boolean
         ) {
             createQuote(

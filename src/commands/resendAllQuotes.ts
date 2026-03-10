@@ -74,7 +74,9 @@ async function deleteMessages(quotesChannel: SendableChannels) {
         fetchedMessages = await quotesChannel.messages.fetch({
             limit: DELETE_BATCH_SIZE,
         });
-        const deletePromises = fetchedMessages.map((msg) => msg.delete());
+        const deletePromises = fetchedMessages.map((msg) =>
+            msg.delete().catch(() => void 0)
+        );
         await Promise.all(deletePromises);
         if (fetchedMessages.size < DELETE_BATCH_SIZE) break; // No more messages to delete
     }
