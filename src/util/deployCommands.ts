@@ -17,7 +17,12 @@ export async function deployCommands({ guildId }: { guildId: string }) {
         );
 
         const data = (await rest.put(
-            Routes.applicationGuildCommands(config.DISCORD_CLIENT_ID, guildId),
+            // ONLY DEPLOY PER GUILD
+            // Routes.applicationGuildCommands(config.DISCORD_CLIENT_ID, guildId),
+            // { body: [] }
+
+            // DEPLOY GLOBALLY TO THE APP
+            Routes.applicationCommands(config.DISCORD_CLIENT_ID),
             { body: commandsData }
         )) as unknown[];
 
