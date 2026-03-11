@@ -1,0 +1,9 @@
+# Ignore artifacts:
+dist
+node_modules
+src/commands/index.ts
+
+# Ignore config files:
+package-lock.json
+pnpm-lock.yaml
+pnpm-workspace.yaml

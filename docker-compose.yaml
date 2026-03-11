@@ -1,51 +1,51 @@
 name: quoterer
 services:
-  bot:
-    container_name: quoterer-bot
-    build: .
-    depends_on:
-      - mongo
-    restart: unless-stopped
-    ports:
-      - 8080:8080
-    environment:
-      db_uri: mongodb://${db_user}:${db_password}@mongo:27017/
-      bot_id: ${bot_id}
-      bot_token: ${bot_token}
-      salt: ${salt}
-    networks:
-      - quoterer-network
+    bot:
+        build: .
+        depends_on:
+            - api
+        environment:
+            DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID}
+            DISCORD_TOKEN: ${DISCORD_TOKEN}
+            MAX_RESPONSE_TIME: ${MAX_RESPONSE_TIME}
+            QUOTERER_GRAPHQL_ENDPOINT: http://api:8080/graphql
+        networks:
+            - quoterer-network
+    api:
+        build:
+            context: git@zetacron.de:tyrem-envalura/quoterer-api.git#feat-postgres
+            ssh:
+                - default
+        depends_on:
+            - postgres
+        ports:
+            - "8080:8080"
+        environment:
+            SPRING_GRAPHQL_GRAPHIQL_ENABLED: true
+            # SPRING_JPA_HIBERNATE_DDL_AUTO: update # Clear database (for when schema changes are made)
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
+            POSTGRES_HOST: postgres
+        networks:
+            - quoterer-network
 
-  mongo:
-    container_name: quoterer-mongo
-    image: mongo
-    restart: unless-stopped
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${db_user}
-      MONGO_INITDB_ROOT_PASSWORD: ${db_password}
-    volumes:
-      - "./db/data:/data/db"
-    networks:
-      - quoterer-network
+    postgres:
+        image: postgres:latest
+        ports:
+            - "5432:5432"
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
+        networks:
+            - quoterer-network
+        volumes:
+            - postgres-data:/var/lib/postgresql
 
-  mongo-express:
-    container_name: quoterer-mongo-express
-    image: mongo-express
-    depends_on:
-    - mongo
-    restart: unless-stopped
-    ports:
-      - 8081:8081
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: ${db_user}
-      ME_CONFIG_MONGODB_ADMINPASSWORD: ${db_password}
-      ME_CONFIG_MONGODB_URL: mongodb://${db_user}:${db_password}@mongo:27017/
-      ME_CONFIG_BASICAUTH_USERNAME: ${db_interface_user}
-      ME_CONFIG_BASICAUTH_PASSWORD: ${db_interface_password}
-      ME_CONFIG_BASICAUTH: true
-    networks:
-      - quoterer-network
-      
+volumes:
+    postgres-data:
+
 networks:
-  quoterer-network:
-    driver: bridge
+    quoterer-network:
+        driver: bridge

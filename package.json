@@ -1,30 +1,52 @@
 {
-  "name": "quoterer-bot",
-  "version": "1.2.0",
-  "main": "index.js",
-  "scripts": {
-    "start": "node .",
-    "deploy": "node deploy-commands.js"
-  },
-  "keywords": [
-    "discord",
-    "bot",
-    "quote",
-    "app",
-    "db",
-    "database"
-  ],
-  "author": "Traube1000101",
-  "license": "ISC",
-  "description": "A Discord Bot which sends quotes in a guild and stores them in a database.",
-  "dependencies": {
-    "argon2": "^0.43.1",
-    "axios": "^1.10.0",
-    "discord.js": "^14.14.1",
-    "dotenv": "^16.4.5",
-    "express": "^5.1.0",
-    "mongodb": "^6.7.0",
-    "node-cache": "^5.1.2",
-    "uuid": "^10.0.0"
-  }
+    "name": "quoterer-bot",
+    "version": "2.0.1",
+    "type": "module",
+    "main": "dist/index.cjs",
+    "engines": {
+        "node": ">=22.0.0"
+    },
+    "scripts": {
+        "dev": "esbuild src/index.ts --platform=node --packages=external --bundle | node",
+        "start": "node dist/index.cjs",
+        "update:commands": "esbuild scripts/update-commands.ts --platform=node --packages=external --bundle | node",
+        "update:deploy": "esbuild scripts/deploy-to-guild.ts --platform=node --packages=external --bundle | node",
+        "update:guild": "node --run update:commands && node --run update:deploy",
+        "build:production": "esbuild src/index.ts --outfile=dist/index.cjs --platform=node --bundle --minify",
+        "build": "node --run update:commands && node --run build:production",
+        "check:lint": "eslint .",
+        "check:style": "prettier --check .",
+        "check:types": "tsc --noEmit",
+        "check": "node --run check:style && node --run check:lint && node --run check:types",
+        "format": "eslint --fix . && prettier --write ."
+    },
+    "keywords": [
+        "discord",
+        "bot",
+        "quote",
+        "app",
+        "db",
+        "database"
+    ],
+    "author": {
+        "name": "Aseraphyss"
+    },
+    "license": "ISC",
+    "description": "A Discord Bot which sends quotes in a guild and stores them in a database.",
+    "dependencies": {
+        "discord.js": "^14.25.1",
+        "dotenv": "^17.3.1",
+        "esbuild": "0.27.3",
+        "graphql": "^16.13.1",
+        "graphql-request": "^7.4.0"
+    },
+    "devDependencies": {
+        "@eslint/js": "^10.0.1",
+        "@types/express": "^5.0.6",
+        "eslint": "^10.0.3",
+        "eslint-config-prettier": "^10.1.8",
+        "prettier": "^3.8.1",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.56.1"
+    }
 }
