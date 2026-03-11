@@ -59,7 +59,7 @@ export async function fetchGuildQuotes(
         utteredAt: new Date(quote.utteredAt),
     }));
     const sortedQuotes = datedQuotes.sort(
-        (a, b) => b.utteredAt.getTime() - a.utteredAt.getTime()
+        (a, b) => a.utteredAt.getTime() - b.utteredAt.getTime()
     );
     return sortedQuotes;
 }
