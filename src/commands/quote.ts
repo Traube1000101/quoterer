@@ -6,12 +6,12 @@ import {
     MessageFlags,
 } from "discord.js";
 import { config } from "@/util/config";
-import { applyQuote } from "@/util/writeQuote";
+import { applyQuote } from "@/util/write-quote";
 import {
     catchInteractionCollectorError,
     createSubmitCancelButtonRow,
     formatQuote,
-} from "@/util/UI";
+} from "@/util/discord-formatting";
 
 export const data = new SlashCommandBuilder()
     .setName("quote")

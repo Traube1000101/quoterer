@@ -2,14 +2,9 @@ import { Events, MessageFlags } from "discord.js";
 import { commands } from "@/commands";
 import { config } from "@/util/config";
 import { client } from "@/util/client";
-import { deployCommands } from "@/util/deployCommands";
 
 client.once(Events.ClientReady, (readyClient) => {
     console.log(`Ready! 🤖 Logged in as ${readyClient.user.tag}`);
-});
-
-client.on(Events.GuildCreate, async (guild) => {
-    await deployCommands({ guildId: guild.id });
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {

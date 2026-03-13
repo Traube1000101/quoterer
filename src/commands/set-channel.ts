@@ -6,7 +6,7 @@ import {
     ChannelType,
     MessageFlags,
 } from "discord.js";
-import { initGuild as initGuildQuotes } from "@/util/apiQuery";
+import { initGuild as initGuildQuotes } from "@/util/queries";
 
 export const data = new SlashCommandBuilder()
     .setName("set-channel")

@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { deployCommands } from "../src/util/deployCommands";
+import { deployCommands } from "./deploy-commands";
 
 const guildId = process.argv[2] ?? process.env.GUILD_ID;
 

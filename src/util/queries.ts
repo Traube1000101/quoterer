@@ -1,4 +1,4 @@
-import type { AuthorEntry, PassageEntry, QuoteEntry } from "./writeQuote";
+import type { AuthorEntry, PassageEntry, QuoteEntry } from "./write-quote";
 
 import { config } from "@/util/config";
 import { gql, GraphQLClient } from "graphql-request";

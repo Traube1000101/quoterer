@@ -9,11 +9,11 @@
     "scripts": {
         "dev": "esbuild src/index.ts --platform=node --packages=external --bundle | node",
         "start": "node dist/index.cjs",
-        "update:commands": "esbuild scripts/update-commands.ts --platform=node --packages=external --bundle | node",
         "update:deploy": "esbuild scripts/deploy-to-guild.ts --platform=node --packages=external --bundle | node",
-        "update:guild": "node --run update:commands && node --run update:deploy",
+        "update:guild": "node --run build:commands && node --run update:deploy",
+        "build:commands": "esbuild scripts/update-commands.ts --platform=node --packages=external --bundle | node",
         "build:production": "esbuild src/index.ts --outfile=dist/index.cjs --platform=node --bundle --minify",
-        "build": "node --run update:commands && node --run build:production",
+        "build": "node --run build:commands && node --run build:production",
         "check:lint": "eslint .",
         "check:style": "prettier --check .",
         "check:types": "tsc --noEmit",
@@ -36,7 +36,7 @@
     "dependencies": {
         "discord.js": "^14.25.1",
         "dotenv": "^17.3.1",
-        "esbuild": "0.27.3",
+        "esbuild": "0.27.4",
         "graphql": "^16.13.1",
         "graphql-request": "^7.4.0"
     },
@@ -47,6 +47,6 @@
         "eslint-config-prettier": "^10.1.8",
         "prettier": "^3.8.1",
         "typescript": "^5.9.3",
-        "typescript-eslint": "^8.56.1"
+        "typescript-eslint": "^8.57.0"
     }
 }

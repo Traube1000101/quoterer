@@ -1,4 +1,4 @@
-import { fetchGuildQuotes } from "@/util/apiQuery";
+import { fetchGuildQuotes } from "@/util/queries";
 import {
     ChatInputCommandInteraction,
     SlashCommandBuilder,
@@ -8,7 +8,7 @@ import {
     SendableChannels,
 } from "discord.js";
 
-import { fetchGuildChannel, sendQuotesToChannel } from "@/util/writeQuote";
+import { fetchGuildChannel, sendQuotesToChannel } from "@/util/write-quote";
 
 export const data = new SlashCommandBuilder()
     .setName("resend-all-quotes")

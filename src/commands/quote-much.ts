@@ -7,13 +7,13 @@ import {
 } from "discord.js";
 
 import { config } from "@/util/config";
-import { applyQuote, type PassageEntry } from "@/util/writeQuote";
+import { applyQuote, type PassageEntry } from "@/util/write-quote";
 import {
     createSubmitCancelButtonRow,
     formatDurationMS,
     formatPassages,
     formatQuote,
-} from "@/util/UI";
+} from "@/util/discord-formatting";
 
 // Storage (in memory) for previous interactions / passages
 // keys: "guildId-userId"

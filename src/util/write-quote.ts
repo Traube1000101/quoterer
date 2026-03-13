@@ -4,10 +4,10 @@ import {
     putPassages,
     putQuote,
     fetchGuildChannelId,
-} from "@/util/apiQuery";
+} from "@/util/queries";
 
 import { client } from "@/util/client";
-import { formatQuote } from "@/util/UI";
+import { formatQuote } from "@/util/discord-formatting";
 
 /** A minimal passage representation containing only the text and author ID. */
 export type PassageData = {

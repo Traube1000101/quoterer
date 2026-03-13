@@ -5,7 +5,7 @@ import {
     InteractionContextType,
 } from "discord.js";
 
-import { execute as quoteMuchExecute } from "@/commands/quoteMuch";
+import { execute as quoteMuchExecute } from "@/commands/quote-much";
 
 export const data = new SlashCommandBuilder()
     .setName("quote-much-private")

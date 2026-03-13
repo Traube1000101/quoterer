@@ -7,7 +7,7 @@ import {
     ChatInputCommandInteraction,
     EmbedBuilder,
 } from "discord.js";
-import type { PassageEntry, QuoteData } from "./writeQuote";
+import type { PassageEntry, QuoteData } from "./write-quote";
 import { ClientError } from "graphql-request";
 import { config } from "@/util/config";
 
