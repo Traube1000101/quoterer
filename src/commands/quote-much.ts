@@ -12,8 +12,8 @@ import type { PassageEntry } from "@/util/queries";
 import {
     createSubmitCancelButtonRow,
     formatDurationMS,
-    formatPassages,
     formatQuote,
+    addQuoteSourceMessage,
 } from "@/util/discord-formatting";
 
 // Storage (in memory) for previous interactions / passages
@@ -122,14 +122,15 @@ export async function execute(
 
         const finalPassages = sessions.get(sessionKey) ?? passages;
         sessions.delete(sessionKey);
-        await applyQuote(interaction, {
+        const quote = {
             guildId: interaction.guildId,
             publisher: interaction.user,
             passages: finalPassages,
-            sourceMessage: formatPassages(finalPassages),
             isPrivate,
             utteredAt: new Date(),
-        });
+        };
+        const fullQuote = addQuoteSourceMessage(quote);
+        await applyQuote(interaction, fullQuote);
         try {
             await confirmation.update({
                 content: `Quote saved with ${finalPassages.length} passage${finalPassages.length !== 1 ? "s" : ""}!`,

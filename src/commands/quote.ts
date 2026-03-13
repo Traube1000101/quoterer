@@ -8,6 +8,7 @@ import {
 import { config } from "@/util/config";
 import { applyQuote } from "@/util/write-quote";
 import {
+    addQuoteSourceMessage,
     catchInteractionCollectorError,
     createSubmitCancelButtonRow,
     formatQuote,
@@ -46,16 +47,16 @@ export async function execute(
     const authorOption = interaction.options.getUser("author");
     const author = authorOption ?? interaction.user;
 
-    const qoute = {
+    const quote = {
         guildId: interaction.guildId,
         publisher: author,
         passages: [{ text: message, author: author }],
-        sourceMessage: message,
         isPrivate,
         utteredAt: new Date(),
     };
+    const fullQuote = addQuoteSourceMessage(quote);
 
-    const qouteEmbed = formatQuote(qoute);
+    const qouteEmbed = formatQuote(fullQuote);
     const response = await interaction.reply({
         content: "Are you sure you want to quote the following message?",
         embeds: qouteEmbed.embeds,
@@ -87,7 +88,7 @@ export async function execute(
             return;
         }
 
-        await applyQuote(interaction, qoute);
+        await applyQuote(interaction, fullQuote);
 
         await confirmation.update({
             content: "Your message has been quoted!",

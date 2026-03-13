@@ -7,7 +7,7 @@ import {
     ChatInputCommandInteraction,
     EmbedBuilder,
 } from "discord.js";
-import type { FetchedQuote, PassageEntry } from "./queries";
+import type { FetchedQuote, FullQuoteEntry } from "./queries";
 import { ClientError } from "graphql-request";
 import { config } from "@/util/config";
 
@@ -43,18 +43,16 @@ function userID2MentionString(userId: string, fallbackName: string) {
     return `<@${userId}>`;
 }
 
-/**
- * Formats an array of passages into a readable string with author mentions.
- * @param passages The passages to format.
- * @returns A newline-separated string of quoted passages with their authors.
- */
-export function formatPassages(passages: PassageEntry[]) {
-    return passages
-        .map(
-            (p) =>
-                `-# "${p.text.trim()}" - ${userID2MentionString(p.author.id, p.author.globalName)}`
-        )
-        .join("\n");
+export function addQuoteSourceMessage(
+    quote: Omit<FullQuoteEntry, "sourceMessage">
+) {
+    const passageTexts = quote.passages.map(
+        (p) =>
+            `"${p.text.trim()}" by ${userID2MentionString(p.author.id, p.author.globalName)}`
+    );
+    const publisherText = `Published by ${userID2MentionString(quote.publisher.id, quote.publisher.globalName)}`;
+    const sourceMessage = passageTexts.join("\n") + "\n" + publisherText;
+    return { ...quote, sourceMessage };
 }
 
 /**
@@ -149,7 +147,7 @@ export function formatQuote({
         .setColor(isPrivate ? 0xf5c542 : 0x5865f2)
         .setDescription(
             passagesText +
-                `\n-# 📌  Archived by ${userID2MentionString(publisher.id, "Unknown")}`
+                `\n-# 📌  Archived by ${userID2MentionString(publisher.id, publisher.globalName ?? "Unknown")}`
         )
         .setTimestamp(date);
 
