@@ -35,10 +35,11 @@ export function createSubmitCancelButtonRow() {
 /**
  * Converts a Discord user ID to a mention string.
  * @param userId The Discord user ID.
- * @returns A formatted mention string (e.g. `<@123456>`).
+ * @param fallbackName The name that will be used instead if the userId is not a Discord ID.
+ * @returns A formatted mention string (e.g. `<@123456>` or `John Doe`).
  */
-function userID2MentionString(userId: string) {
-    if (userId.length == 36 && userId.charAt(8) === "-") return userId;
+function userID2MentionString(userId: string, fallbackName: string) {
+    if (userId.length == 36 && userId.charAt(8) === "-") return fallbackName;
     return `<@${userId}>`;
 }
 
@@ -51,7 +52,7 @@ export function formatPassages(passages: PassageEntry[]) {
     return passages
         .map(
             (p) =>
-                `-# "${p.text.trim()}" - ${userID2MentionString(p.author.id)}`
+                `-# "${p.text.trim()}" - ${userID2MentionString(p.author.id, p.author.globalName)}`
         )
         .join("\n");
 }
@@ -140,7 +141,7 @@ export function formatQuote({
     const passagesText = passages
         .map(
             (p) =>
-                `### ❝ ${p.text.trim()} ❞ — ${userID2MentionString(p.author.id)}`
+                `### ❝ ${p.text.trim()} ❞ — ${userID2MentionString(p.author.id, p.author.globalName)}`
         )
         .join("\n");
 
@@ -148,7 +149,7 @@ export function formatQuote({
         .setColor(isPrivate ? 0xf5c542 : 0x5865f2)
         .setDescription(
             passagesText +
-                `\n-# 📌  Archived by ${userID2MentionString(publisher.id)}`
+                `\n-# 📌  Archived by ${userID2MentionString(publisher.id, "Unknown")}`
         )
         .setTimestamp(date);
 

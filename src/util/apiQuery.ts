@@ -24,11 +24,13 @@ export async function fetchGuildQuotes(
                     passages {
                         author {
                             id
+                            globalName
                         }
                         text
                     }
                     publisher {
                         id
+                        globalName
                     }
                 }
             }
@@ -44,11 +46,13 @@ export async function fetchGuildQuotes(
                 passages: {
                     author: {
                         id: string;
+                        globalName: string;
                     };
                     text: string;
                 }[];
                 publisher: {
                     id: string;
+                    globalName: string;
                 };
             }[];
         };

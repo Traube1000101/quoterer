@@ -10,10 +10,13 @@ import { client } from "@/util/client";
 import { formatQuote } from "@/util/UI";
 
 /** A minimal passage representation containing only the text and author ID. */
-export type PassageData = { text: string; author: Pick<AuthorEntry, "id"> };
+export type PassageData = {
+    text: string;
+    author: Pick<AuthorEntry, "id" | "globalName">;
+};
 /** A lightweight quote representation used for display purposes. */
 export type QuoteData = {
-    publisher: Pick<AuthorEntry, "id">;
+    publisher: Pick<AuthorEntry, "id" | "globalName">;
     passages: PassageData[];
     isPrivate: boolean;
     utteredAt: Date;
