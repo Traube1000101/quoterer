@@ -8,7 +8,7 @@ COPY package.json pnpm-lock.yaml tsconfig.json ./
 COPY src ./src
 COPY scripts ./scripts
 
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --prod
 RUN pnpm run build
 
 FROM node:lts-alpine

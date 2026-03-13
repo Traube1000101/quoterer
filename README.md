@@ -73,31 +73,35 @@ DISCORD_CLIENT_ID=
 DISCORD_TOKEN=
 MAX_RESPONSE_TIME=60000
 
-# API / database environment variables
+# Credentials for the PostgreSQL database, shared between the API and the database container.
 POSTGRES_USER=
 POSTGRES_PASSWORD=
 POSTGRES_DB=
 
 # (Optional) Default guild ID for deploying slash commands
-GUILD_ID=
+DEV_GUILD_ID=
 ```
 
 - `DISCORD_CLIENT_ID` / `DISCORD_TOKEN` - From the [Discord Developer Portal](https://discord.com/developers/applications).
 - `MAX_RESPONSE_TIME` - How long (in milliseconds) the bot waits for a user to confirm or cancel a quote before timing out.
-- `POSTGRES_*` - Credentials for the PostgreSQL database, shared between the API and the database container.
 
 ## Scripts
 
-| Script                     | What it does                                                                                                             |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `pnpm run dev`             | Bundles and runs the bot directly via esbuild - no output file, just pipes to node. Handy for local dev.                 |
-| `pnpm run build`           | Auto-generates the command index, then produces a minified production bundle at `dist/index.cjs`.                        |
-| `pnpm run start`           | Runs the pre-built `dist/index.cjs`.                                                                                     |
-| `pnpm run update:commands` | Regenerates `src/commands/index.ts` by scanning command files in the directory. Run this after adding/removing commands. |
-| `pnpm run update:deploy`   | Deploys slash commands to a specific guild. Pass a guild ID as an argument or set `GUILD_ID` in `.env`.                  |
-| `pnpm run update:guild`    | Runs both `update:commands` and `update:deploy` in sequence.                                                             |
-| `pnpm run check`           | Runs Prettier, ESLint, and TypeScript type-checking in sequence.                                                         |
-| `pnpm run format`          | Auto-fixes lint issues and formats everything with Prettier.                                                             |
+| Script                           | What it does                                                                                              |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `pnpm run dev`                   | Bundles and runs the bot directly via esbuild - no output file, just pipes to node. Handy for local dev.  |
+| `pnpm run start`                 | Runs the pre-built `dist/index.cjs`.                                                                      |
+| `pnpm run build:commands`        | Regenerates `src/commands/index.ts` by scanning command files in `src/commands/`.                         |
+| `pnpm run build:production`      | Produces a minified production bundle at `dist/index.cjs`.                                                |
+| `pnpm run build`                 | Runs `build:commands` and then `build:production`.                                                        |
+| `pnpm run register:dev`          | Rebuilds command index, then deploys slash commands to your dev guild (`scripts/deploy-commands-dev.ts`). |
+| `pnpm run register:global`       | Rebuilds command index, then deploys slash commands globally (`scripts/deploy-commands-global.ts`).       |
+| `pnpm run register:global:clear` | Clears all globally registered slash commands (`scripts/deploy-commands-global-clear.ts`).                |
+| `pnpm run check:style`           | Runs Prettier in check mode.                                                                              |
+| `pnpm run check:lint`            | Runs ESLint across the project.                                                                           |
+| `pnpm run check:types`           | Runs TypeScript type-checking without emitting files.                                                     |
+| `pnpm run check`                 | Runs style, lint, and type-checking in sequence.                                                          |
+| `pnpm run format`                | Auto-fixes lint issues and formats everything with Prettier.                                              |
 
 ## Running (for development)
 
@@ -113,8 +117,7 @@ Fire up the whole stack:
 docker compose up -d
 ```
 
-pnpm run update:commands
-This builds the bot and API containers, starts PostgreSQL, and wires everything together. The bot will log in and automatically deploy its slash commands to any guild it joins (if it has not run `update:guild` with your guild ID).
+This builds the bot and API containers, starts PostgreSQL, and wires everything together. The bot will log in and can then be registered with `register:dev` (guild-scoped for fast development) or `register:global`.
 
 For local development without Docker, make sure the API and database are accessible and the `QUOTERER_GRAPHQL_ENDPOINT` environment variable points to the right URL, then:
 
@@ -124,7 +127,7 @@ pnpm run dev
 
 ## Disclaimer
 
-The bot uses a specific quote style - you can't change the formatting from within Discord. Feel free to tweak `src/util/UI.ts` if you want a different look.
+The bot uses a specific quote style - you can't change the formatting from within Discord. Feel free to tweak `src/util/discord-formatting.ts` if you want a different look.
 
 ### Example:
 

@@ -1,0 +1,25 @@
+name: CI Checks
+
+on:
+    pull_request:
+        branches: [main]
+
+jobs:
+    build-and-test:
+        runs-on: ubuntu-act
+
+        steps:
+            - name: 🔄 Checkout Repo
+              uses: actions/checkout@v6
+
+            - name: 🛠️ Install Dependencies
+              run: npm install
+
+            - name: 🔍 Run Style Checks
+              run: npm run check:style
+
+            - name: 🔍 Run Lint Checks
+              run: npm run check:lint
+
+            - name: 🔍 Run Type Checks
+              run: npm run check:types

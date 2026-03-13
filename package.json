@@ -9,13 +9,14 @@
     "scripts": {
         "dev": "esbuild src/index.ts --platform=node --packages=external --bundle | node",
         "start": "node dist/index.cjs",
-        "update:deploy": "esbuild scripts/deploy-to-guild.ts --platform=node --packages=external --bundle | node",
-        "update:guild": "node --run build:commands && node --run update:deploy",
         "build:commands": "esbuild scripts/update-commands.ts --platform=node --packages=external --bundle | node",
         "build:production": "esbuild src/index.ts --outfile=dist/index.cjs --platform=node --bundle --minify",
         "build": "node --run build:commands && node --run build:production",
-        "check:lint": "eslint .",
+        "register:dev": "node --run build:commands && esbuild scripts/deploy-commands-dev.ts --platform=node --packages=external --bundle | node",
+        "register:global": "node --run build:commands && esbuild scripts/deploy-commands-global.ts --platform=node --packages=external --bundle | node",
+        "register:global:clear": "esbuild scripts/deploy-commands-global-clear.ts --platform=node --packages=external --bundle | node",
         "check:style": "prettier --check .",
+        "check:lint": "eslint .",
         "check:types": "tsc --noEmit",
         "check": "node --run check:style && node --run check:lint && node --run check:types",
         "format": "eslint --fix . && prettier --write ."
