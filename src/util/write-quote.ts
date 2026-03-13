@@ -8,19 +8,8 @@ import {
 
 import { client } from "@/util/client";
 import { formatQuote } from "@/util/discord-formatting";
+import type { FetchedQuote, FullQuoteEntry } from "@/util/queries";
 
-/** A minimal passage representation containing only the text and author ID. */
-export type PassageData = {
-    text: string;
-    author: Pick<AuthorEntry, "id" | "globalName">;
-};
-/** A lightweight quote representation used for display purposes. */
-export type QuoteData = {
-    publisher: Pick<AuthorEntry, "id" | "globalName">;
-    passages: PassageData[];
-    isPrivate: boolean;
-    utteredAt: Date;
-};
 /**
  * Sends a single formatted quote to the specified channel.
  * @param quotesChannel The Discord channel to send the quote to.
@@ -28,7 +17,7 @@ export type QuoteData = {
  */
 export async function sendQuoteToChannel(
     quotesChannel: SendableChannels,
-    qoute: QuoteData
+    qoute: FetchedQuote
 ) {
     await sendQuotesToChannel(quotesChannel, [qoute]);
 }
@@ -41,7 +30,7 @@ const SEND_RATE_LIMIT = { amount: 5, window_ms: 5000 };
  */
 export async function sendQuotesToChannel(
     quotesChannel: SendableChannels,
-    qoutes: QuoteData[]
+    qoutes: FetchedQuote[]
 ) {
     const delay = (ms: number) =>
         new Promise((resolve) => setTimeout(resolve, ms));
@@ -55,24 +44,6 @@ export async function sendQuotesToChannel(
     }
 }
 
-/** Full author information including display name, username, and avatar. */
-export type AuthorEntry = {
-    id: string;
-    globalName: string | null;
-    username: string | null;
-    avatarURL: () => string | null;
-};
-/** A passage with its full author details, used when persisting to the API. */
-export type PassageEntry = { text: string; author: AuthorEntry };
-/** Full quote entry containing all data needed to persist a quote to the API. */
-export type QuoteEntry = {
-    guildId: string;
-    publisher: AuthorEntry;
-    passages: PassageEntry[];
-    isPrivate: boolean;
-    sourceMessage: string;
-    utteredAt: Date;
-};
 /**
  * Persists a quote and its associated authors and passages to the database via the API.
  * @param quote The full quote entry to store.
@@ -83,7 +54,7 @@ export async function createQuoteDBEntry({
     passages,
     sourceMessage,
     isPrivate,
-}: QuoteEntry) {
+}: FullQuoteEntry) {
     const authors = passages.map((p) => p.author);
     authors.push(publisher);
     await putAuthors(authors);
@@ -104,7 +75,7 @@ export async function createQuoteDBEntry({
  */
 export async function applyQuote(
     interaction: ChatInputCommandInteraction<"cached">,
-    quote: QuoteEntry
+    quote: FullQuoteEntry
 ) {
     await createQuoteDBEntry(quote);
     const quotesChannel = await fetchGuildChannel(quote.guildId, interaction);

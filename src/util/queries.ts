@@ -1,9 +1,10 @@
-import type { AuthorEntry, PassageEntry, QuoteEntry } from "./write-quote";
-
 import { config } from "@/util/config";
 import { gql, GraphQLClient } from "graphql-request";
 
 const graphqlClient = new GraphQLClient(config.QUOTERER_GRAPHQL_ENDPOINT);
+
+export type FetchedQuote = Awaited<ReturnType<typeof fetchGuildQuotes>>[number];
+export type FetchedPassage = FetchedQuote["passages"][number];
 
 /**
  * Fetches all quotes for a guild from the GraphQL API. Quotes are sorted by utteredAt timestamp in descending order (newest first).
@@ -139,6 +140,14 @@ export async function initGuild(
     );
 }
 
+/** Full author information needed to create a DB entry. */
+export type AuthorEntry = {
+    id: string;
+    globalName: string | null;
+    username: string | null;
+    avatarURL: () => string | null;
+};
+
 const filterUniqueAuthor = (
     a: AuthorEntry,
     index: number,
@@ -185,6 +194,15 @@ export async function putAuthors(authors: AuthorEntry[]) {
     );
 }
 
+/** Full quote entry containing all data needed to create a DB entry. */
+export type QuoteEntry = {
+    guildId: string;
+    publisher: AuthorEntry;
+    isPrivate: boolean;
+    sourceMessage: string;
+    utteredAt: Date;
+};
+
 /**
  * Creates a new quote record in the API.
  * @param quote The quote data excluding passages (guild ID, publisher, source message, privacy flag, and timestamp).
@@ -196,7 +214,7 @@ export async function putQuote({
     sourceMessage,
     isPrivate,
     utteredAt,
-}: Omit<QuoteEntry, "passages">) {
+}: QuoteEntry) {
     const mutation = gql`
         mutation (
             $guildId: ID!
@@ -231,6 +249,10 @@ export async function putQuote({
         createQuote: { id: string };
     }>(mutation, variables);
 }
+
+/** A passage with its full author details needed to create a DB entry. */
+export type PassageEntry = { text: string; author: AuthorEntry };
+export type FullQuoteEntry = QuoteEntry & { passages: PassageEntry[] };
 
 /**
  * Creates passage records for a quote. Each passage is ordered by its array index.

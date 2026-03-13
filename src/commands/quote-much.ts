@@ -7,7 +7,8 @@ import {
 } from "discord.js";
 
 import { config } from "@/util/config";
-import { applyQuote, type PassageEntry } from "@/util/write-quote";
+import { applyQuote } from "@/util/write-quote";
+import type { PassageEntry } from "@/util/queries";
 import {
     createSubmitCancelButtonRow,
     formatDurationMS,

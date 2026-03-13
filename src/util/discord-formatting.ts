@@ -7,7 +7,7 @@ import {
     ChatInputCommandInteraction,
     EmbedBuilder,
 } from "discord.js";
-import type { PassageEntry, QuoteData } from "./write-quote";
+import type { FetchedQuote, PassageEntry } from "./queries";
 import { ClientError } from "graphql-request";
 import { config } from "@/util/config";
 
@@ -135,7 +135,7 @@ export function formatQuote({
     passages,
     isPrivate,
     utteredAt,
-}: QuoteData) {
+}: FetchedQuote) {
     const date = new Date(utteredAt);
 
     const passagesText = passages
